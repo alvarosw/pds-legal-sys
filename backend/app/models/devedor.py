@@ -19,8 +19,6 @@ class Devedor(db.Model):
     criado_em = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    processo = db.relationship('Processo', backref='devedores')
-
     def to_dict(self):
         return {
             'id': self.id,

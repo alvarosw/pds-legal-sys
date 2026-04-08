@@ -2,6 +2,7 @@ from flask import jsonify, request
 from app.schemas.cliente import ClienteSchema, ClienteCreateSchema, ClienteUpdateSchema
 from app.repositories.cliente_repo import ClienteRepository
 from app.models.processo import Processo
+from app.utils.sanitizers import sanitize_cpf_cnpj
 
 
 cliente_schema = ClienteSchema()
@@ -43,18 +44,22 @@ def get_cliente(id):
 
 
 def create_cliente():
-    data = request.get_json()
-    errors = cliente_create_schema.validate(data)
-    if errors:
-        return jsonify({'error': {'code': 'VALIDATION_ERROR', 'message': 'Dados inválidos.', 'details': errors}}), 400
+    try:
+        data = request.get_json()
+        errors = cliente_create_schema.validate(data)
+        if errors:
+            return jsonify({'error': {'code': 'VALIDATION_ERROR', 'message': 'Dados inválidos.', 'details': errors}}), 400
 
-    existing = ClienteRepository.get_by_cpf_cnpj(data.get('cpf_cnpj'))
-    if existing:
-        return jsonify({'error': {'code': 'CONFLICT', 'message': 'Cliente já cadastrado.'}}), 409
+        sanitized_cpf = sanitize_cpf_cnpj(data.get('cpf_cnpj'))
+        existing = ClienteRepository.get_by_cpf_cnpj(sanitized_cpf)
+        if existing:
+            return jsonify({'error': {'code': 'CONFLICT', 'message': 'Cliente já cadastrado.'}}), 409
 
-    validated = cliente_create_schema.load(data)
-    cliente = ClienteRepository.create(validated)
-    return jsonify(cliente_schema.dump(cliente)), 201
+        validated = cliente_create_schema.load(data)
+        cliente = ClienteRepository.create(validated)
+        return jsonify(cliente_schema.dump(cliente)), 201
+    except Exception as e:
+        return jsonify({'error': {'code': 'INTERNAL_ERROR', 'message': str(e)}}), 500
 
 
 def update_cliente(id):
