@@ -174,8 +174,6 @@ backend/
 │   ├── test_controllers/
 │   └── conftest.py
 ├── .env.example
-├── docker-compose.yml
-├── Dockerfile
 ├── requirements.txt
 └── run.py
 ```
