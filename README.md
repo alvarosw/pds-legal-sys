@@ -20,103 +20,69 @@ Sistema para controle de clientes, processos, devedores e advogados do escritór
 | PostgreSQL | 16 |
 | Docker (opcional) | 24.x |
 
-## Instalação
+
+## 🚀 Quickstart (Recomendado)
+
+Execute todo o sistema (banco, backend, frontend) com um único comando usando Docker Compose na raiz do projeto:
+
+```bash
+docker compose down -v  # Remove volumes antigos (opcional)
+docker compose up --build
+```
+
+Acesse:
+- **Frontend:** http://localhost:80
+- **API:** http://localhost:5000/api/v1
+
+Para parar:
+- `docker compose down` (mantém dados)
+- `docker compose down -v` (remove dados)
+
+O Docker Compose da raiz sobe 3 serviços em ordem:
+1. **postgres** — aguarda healthcheck (`pg_isready`)
+2. **backend** — espera o postgres, roda `flask db upgrade`, inicia Flask
+3. **frontend** — espera o backend, serve o build estático via `serve`
+
+---
+
+## 👩‍💻 Desenvolvimento Local (sem Docker)
 
 ### 1. Banco de Dados
 
-**Opção A — Docker (recomendado):**
+Suba um PostgreSQL localmente (fora do Docker) OU use o serviço do Docker Compose:
 
-```bash
-cd backend
-docker compose up -d postgres
-```
-
-**Opção B — PostgreSQL local:**
-
-Crie um banco chamado `gestao_juridica` e configure o `.env` (veja backend/.env.example).
+- **Opção A:** Use o banco do Docker Compose (recomendado)
+  - Rode apenas `docker compose up postgres` na raiz
+- **Opção B:** Instale PostgreSQL 16 localmente, crie um banco chamado `gestao_juridica` e configure o `.env` (veja `backend/.env.example`)
 
 ### 2. Backend
 
 ```bash
 cd backend
-
-# Criar ambiente virtual
 python -m venv venv
-
 # Ativar (Windows)
 venv\Scripts\activate
 # Ativar (Linux/macOS)
 source venv/bin/activate
-
-# Instalar dependências
 pip install -r requirements.txt
-
-# Copiar e configurar .env
-copy .env.example .env
-# Edite DATABASE_URL apontando para seu PostgreSQL
-
-# Rodar migrações
+copy .env.example .env  # Edite DATABASE_URL se necessário
 flask db upgrade
+python run.py
 ```
+
+Servidor disponível em http://localhost:5000
 
 ### 3. Frontend
 
 ```bash
 cd frontend
 npm install
-```
-
-## Execução
-
-### Opção 1 — Docker (tudo junto, recomendado para demo)
-
-Remove volumes antigos (evita conflito de versão do PostgreSQL) e sobe tudo:
-
-```bash
-docker compose down -v
-docker compose up --build
-```
-
-Acessar:
-- **Frontend:** `http://localhost:80`
-- **API:** `http://localhost:5000/api/v1`
-
-O Docker Compose sobe 3 serviços em ordem:
-1. **postgres** — aguarda healthcheck (`pg_isready`)
-2. **backend** — espera o postgres, roda `flask db upgrade`, inicia Flask
-3. **frontend** — espera o backend, serve o build estático via `serve`
-
-Para parar: `docker compose down` (mantém dados) ou `docker compose down -v` (remove dados).
-
-### Opção 2 — Desenvolvimento local
-
-#### Iniciar Backend
-
-```bash
-cd backend
-venv\Scripts\activate  # Windows
-python run.py
-```
-
-Servidor disponível em `http://localhost:5000`.
-
-### Iniciar Frontend
-
-```bash
-cd frontend
 npm run dev
 ```
 
-Aplicação disponível em `http://localhost:5173`.
+Aplicação disponível em http://localhost:5173
 
-### Executar com Docker (tudo junto)
-
-```bash
-cd backend
-docker compose up -d
-```
-
-Sobe PostgreSQL e backend automaticamente. O frontend deve ser rodado separadamente (aponte `VITE_API_URL` para `http://localhost:5000/api/v1`).
+> **Obs:** Se rodar frontend localmente, edite `frontend/src/services/api.ts` se precisar mudar a URL da API.
 
 ## Endpoints da API
 
