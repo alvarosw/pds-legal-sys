@@ -1,0 +1,69 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: gestao_juridica_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gestao_juridica
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - gestao_juridica
+
+  backend:
+    build: ./backend
+    container_name: gestao_juridica_api
+    command: >
+      sh -c "
+        until pg_isready -h postgres -U postgres; do sleep 1; done;
+        flask db upgrade &&
+        flask run --host=0.0.0.0 --port=5000
+      "
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/gestao_juridica
+      FLASK_APP: run.py
+      FLASK_ENV: development
+      SECRET_KEY: dev-secret-key
+      CORS_ORIGINS: http://localhost:80,http://localhost:3000,http://localhost:5173
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5000/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - gestao_juridica
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:5000/api/v1
+    container_name: gestao_juridica_web
+    ports:
+      - "80:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - gestao_juridica
+
+volumes:
+  postgres_data:
+
+networks:
+  gestao_juridica:
+    driver: bridge
