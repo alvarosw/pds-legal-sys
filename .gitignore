@@ -41,3 +41,4 @@ postgres_data/
 
 # Build artifacts
 *.tsbuildinfo
+-e "\n# Temp files\ntemp_check*\n.playwright-mcp/"  
