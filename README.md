@@ -68,7 +68,29 @@ npm install
 
 ## Execução
 
-### Iniciar Backend
+### Opção 1 — Docker (tudo junto, recomendado para demo)
+
+Remove volumes antigos (evita conflito de versão do PostgreSQL) e sobe tudo:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+Acessar:
+- **Frontend:** `http://localhost:80`
+- **API:** `http://localhost:5000/api/v1`
+
+O Docker Compose sobe 3 serviços em ordem:
+1. **postgres** — aguarda healthcheck (`pg_isready`)
+2. **backend** — espera o postgres, roda `flask db upgrade`, inicia Flask
+3. **frontend** — espera o backend, serve o build estático via `serve`
+
+Para parar: `docker compose down` (mantém dados) ou `docker compose down -v` (remove dados).
+
+### Opção 2 — Desenvolvimento local
+
+#### Iniciar Backend
 
 ```bash
 cd backend
