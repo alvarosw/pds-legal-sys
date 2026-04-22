@@ -1,89 +1,132 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-type MaskType = 'cpf' | 'cnpj' | 'cpf_cnpj' | 'phone' | 'oab'
-
-interface MaskedInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' | 'value'> {
-  mask: MaskType
+type MaskedInputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'onChange' | 'value'
+> & {
+  masks: string[]
   value?: string
   onChange?: (rawValue: string) => void
 }
 
-const MASK_CONFIG: Record<MaskType, { maxLength: number }> = {
-  cpf: { maxLength: 11 },
-  cnpj: { maxLength: 14 },
-  cpf_cnpj: { maxLength: 14 },
-  phone: { maxLength: 11 },
-  oab: { maxLength: 9 },
+type MaskToken = {
+  type: 'digit' | 'upper' | 'lower' | 'fixed'
+  char?: string
 }
 
-const applyMask = (value: string, mask: MaskType): string => {
-  const digits = value.replace(/\D/g, '')
-  const { maxLength } = MASK_CONFIG[mask]
-  const limited = digits.substring(0, maxLength)
+const parseMask = (mask: string): MaskToken[] => {
+  return mask.split('').map((char) => {
+    if (char === '0') return { type: 'digit' }
+    if (char === 'X') return { type: 'upper' }
+    if (char === 'x') return { type: 'lower' }
+    return { type: 'fixed', char }
+  })
+}
 
-  switch (mask) {
-    case 'cpf':
-      return limited
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d{1,2})/, '$1-$2')
-    case 'cnpj':
-      return limited
-        .replace(/(\d{2})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1/$2')
-        .replace(/(\d{4})(\d{1,2})/, '$1-$2')
-    case 'cpf_cnpj':
-      if (limited.length <= 11) {
-        return limited
-          .replace(/(\d{3})(\d)/, '$1.$2')
-          .replace(/(\d{3})(\d)/, '$1.$2')
-          .replace(/(\d{3})(\d{1,2})/, '$1-$2')
-      }
-      return limited
-        .replace(/(\d{2})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1/$2')
-        .replace(/(\d{4})(\d{1,2})/, '$1-$2')
-    case 'phone':
-      if (limited.length <= 10) {
-        return limited
-          .replace(/(\d{2})(\d)/, '($1) $2')
-          .replace(/(\d{4})(\d)/, '$1-$2')
-      }
-      return limited
-        .replace(/(\d{2})(\d)/, '($1) $2')
-        .replace(/(\d{5})(\d)/, '$1-$2')
-    case 'oab':
-      return limited.replace(/([A-Z]{2})(\d)/, '$1 $2')
-    default:
-      return limited
+const countValidSlots = (tokens: MaskToken[]) =>
+  tokens.filter((t) => t.type !== 'fixed').length
+
+const applyMask = (raw: string, tokens: MaskToken[]) => {
+  let result = ''
+  if (!raw) return result
+
+  let rawIndex = 0
+
+  for (const token of tokens) {
+    if (token.type === 'fixed') {
+      result += token.char
+      continue
+    }
+
+    const char = raw[rawIndex]
+    if (!char) break
+
+    result += char
+    rawIndex++
   }
+
+  return result
+}
+
+const sanitizeRaw = (input: string, tokens: MaskToken[]) => {
+  const clean = input.replace(/[^a-zA-Z0-9]/g, '')
+  const result: string[] = []
+
+  let i = 0
+
+  for (const token of tokens) {
+    if (token.type === 'fixed') continue
+
+    const char = clean[i]
+    if (!char) break
+
+    if (token.type === 'digit' && /\d/.test(char)) {
+      result.push(char)
+      i++
+    } else if (token.type === 'upper' && /[a-zA-Z]/.test(char)) {
+      result.push(char.toUpperCase())
+      i++
+    } else if (token.type === 'lower' && /[a-zA-Z]/.test(char)) {
+      result.push(char.toLowerCase())
+      i++
+    } else {
+      i++ // ignora inválido
+    }
+  }
+
+  return result.join('')
+}
+
+const pickMask = (rawLength: number, parsedMasks: { tokens: MaskToken[]; size: number }[]) => {
+  const exact = parsedMasks.find((m) => m.size === rawLength)
+  if (exact) return exact
+
+  const bigger = parsedMasks
+    .filter((m) => m.size >= rawLength)
+    .sort((a, b) => a.size - b.size)[0]
+
+  if (bigger) return bigger
+
+  return parsedMasks.sort((a, b) => b.size - a.size)[0]
 }
 
 export const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
-  ({ mask, value: rawValue, onChange, className, ...props }, ref) => {
-    const maxLength = MASK_CONFIG[mask].maxLength
-    const [displayValue, setDisplayValue] = React.useState(() => 
-      applyMask(String(rawValue || ''), mask)
-    )
+  ({ masks, value, onChange, className, ...props }, ref) => {
+    const parsedMasks = React.useMemo(() => {
+      return masks
+        .map((mask) => {
+          const tokens = parseMask(mask)
+          return {
+            tokens,
+            size: countValidSlots(tokens),
+          }
+        })
+        .sort((a, b) => a.size - b.size)
+    }, [masks])
 
-    // Sincroniza display quando o valor externo muda
+    const maxLength = parsedMasks[parsedMasks.length - 1]?.size ?? 0
+
+    const [displayValue, setDisplayValue] = React.useState('')
+
     React.useEffect(() => {
-      setDisplayValue(applyMask(String(rawValue || ''), mask))
-    }, [rawValue, mask])
+      const raw = (value || '').slice(0, maxLength)
+      const mask = pickMask(raw.length, parsedMasks)
+      const formatted = applyMask(raw, mask.tokens)
+      setDisplayValue(formatted)
+    }, [value, parsedMasks, maxLength])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const inputVal = e.target.value
-      const raw = mask === 'oab'
-        ? inputVal.replace(/[^A-Za-z0-9]/g, '').substring(0, maxLength).toUpperCase()
-        : inputVal.replace(/\D/g, '').substring(0, maxLength)
-      
-      const formatted = applyMask(raw, mask)
+      const input = e.target.value
+
+      // usa maior máscara pra sanitizar entrada
+      const biggestMask = parsedMasks[parsedMasks.length - 1]
+      const raw = sanitizeRaw(input, biggestMask.tokens).slice(0, maxLength)
+
+      const mask = pickMask(raw.length, parsedMasks)
+      const formatted = applyMask(raw, mask.tokens)
+
       setDisplayValue(formatted)
-      
-      // Chama onChange com o valor cru
       onChange?.(raw)
     }
 
@@ -93,7 +136,7 @@ export const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
         value={displayValue}
         onChange={handleChange}
         className={cn(
-          'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+          'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm',
           className
         )}
         {...props}
@@ -101,4 +144,5 @@ export const MaskedInput = React.forwardRef<HTMLInputElement, MaskedInputProps>(
     )
   }
 )
+
 MaskedInput.displayName = 'MaskedInput'

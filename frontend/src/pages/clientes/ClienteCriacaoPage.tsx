@@ -63,7 +63,7 @@ export function ClienteCriacaoPage() {
                   render={({ field }) => (
                     <MaskedInput
                       id="cpf_cnpj"
-                      mask="cpf_cnpj"
+                      masks={['000.000.000-00', '00.000.000/0000-00']}
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="000.000.000-00"
@@ -83,7 +83,7 @@ export function ClienteCriacaoPage() {
                   render={({ field }) => (
                     <MaskedInput
                       id="telefone"
-                      mask="phone"
+                      masks={['(00) 00000-0000', '(00) 0000-0000']}
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="(00) 0000-0000"

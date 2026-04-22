@@ -18,7 +18,7 @@ export const clienteSchema = z.object({
 export const advogadoSchema = z.object({
   nome_completo: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
   numero_oab: z.string()
-    .refine((val) => /^[A-Z]{2}\d+$/.test(val.toUpperCase()), 'OAB deve estar no formato UF + números (ex: SP123456)'),
+    .refine((val) => /^[A-Z]{2}?\s*\d+$/.test(val.toUpperCase()), 'OAB deve estar no formato UF + números (ex: SP 123456 ou SP123456)'),
   cpf: digitsOnly('CPF', 11, 11),
   email: z.string().email('E-mail inválido'),
   telefone: digitsOnly('Telefone', 10, 11).optional().or(z.literal('')),

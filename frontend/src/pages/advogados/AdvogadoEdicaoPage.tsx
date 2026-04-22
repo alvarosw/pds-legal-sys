@@ -124,7 +124,7 @@ export function AdvogadoEdicaoPage() {
                   render={({ field }) => (
                     <MaskedInput
                       id="numero_oab"
-                      mask="oab"
+                      masks={['XX00000', 'XX000000']}
                       value={field.value}
                       onChange={field.onChange}
                     />
@@ -143,7 +143,7 @@ export function AdvogadoEdicaoPage() {
                   render={({ field }) => (
                     <MaskedInput
                       id="cpf"
-                      mask="cpf"
+                      masks={['000.000.000-00']}
                       value={field.value}
                       onChange={field.onChange}
                     />
@@ -170,7 +170,7 @@ export function AdvogadoEdicaoPage() {
                   render={({ field }) => (
                     <MaskedInput
                       id="telefone"
-                      mask="phone"
+                      masks={['(00) 00000-0000', '(00) 0000-0000']}
                       value={field.value}
                       onChange={field.onChange}
                     />

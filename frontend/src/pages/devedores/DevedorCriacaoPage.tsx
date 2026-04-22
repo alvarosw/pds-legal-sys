@@ -68,7 +68,7 @@ export function DevedorCriacaoPage() {
                   render={({ field }) => (
                     <MaskedInput
                       id="cpf_cnpj"
-                      mask="cpf_cnpj"
+                      masks={['000.000.000-00', '00.000.000/0000-00']}
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="000.000.000-00"
