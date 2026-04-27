@@ -20,9 +20,11 @@ export function ClientesPage() {
       key: 'nome_completo',
       label: 'Nome',
       sortable: true,
-      render: (value) => <span className="text-blue-600 hover:underline cursor-pointer">
+      render: (value) => (
+        <span className="text-blue-600 hover:underline cursor-pointer">
           {String(value)}
-        </span>,
+        </span>
+      )
     },
     {
       key: 'cpf_cnpj',
