@@ -8,19 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MaskedInput } from '@/components/ui/masked-input'
 import { Label } from '@/components/ui/label'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { devedorSchema, type DevedorFormData } from '@/schemas'
 import {
   getDevedorById,
   updateDevedor,
-  deactivateDevedor,
   getDevedorErrorMessage,
 } from '@/services/devedor.service'
 
@@ -28,7 +19,6 @@ export function DevedorEdicaoPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
-  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false)
   const [loading, setLoading] = useState(true)
 
   const {
@@ -78,16 +68,6 @@ export function DevedorEdicaoPage() {
         processo_id: data.processo_id || undefined,
         observacoes: data.observacoes || undefined,
       })
-      navigate('/devedores')
-    } catch (err) {
-      setError(getDevedorErrorMessage(err))
-    }
-  }
-
-  const handleDeactivate = async () => {
-    if (!id) return
-    try {
-      await deactivateDevedor(id)
       navigate('/devedores')
     } catch (err) {
       setError(getDevedorErrorMessage(err))
@@ -198,42 +178,18 @@ export function DevedorEdicaoPage() {
                 <p className="text-sm text-destructive">{error}</p>
               )}
 
-              <div className="flex items-center justify-between pt-4">
-                <Button type="button" variant="destructive" onClick={() => setShowDeactivateDialog(true)}>
-                  Desativar
+              <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="secondary" onClick={() => navigate('/devedores')}>
+                  Cancelar
                 </Button>
-                <div className="flex gap-3">
-                  <Button type="button" variant="secondary" onClick={() => navigate('/devedores')}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Salvando...' : 'Salvar'}
-                  </Button>
-                </div>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Salvando...' : 'Salvar'}
+                </Button>
               </div>
             </form>
           </CardContent>
         </Card>
       </div>
-
-      <Dialog open={showDeactivateDialog} onOpenChange={setShowDeactivateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar desativação</DialogTitle>
-            <DialogDescription>
-              Deseja realmente desativar este devedor? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => setShowDeactivateDialog(false)}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={handleDeactivate}>
-              Desativar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

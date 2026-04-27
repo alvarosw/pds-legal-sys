@@ -16,11 +16,14 @@ ENV/
 instance/
 .pytest_cache/
 .mypy_cache/
+.playwright-mcp/
 
 # Node
 node_modules/
+backend/node_modules/
 frontend/dist/
 frontend/.vite/
+frontend/node_modules/
 
 # IDE
 .vscode/

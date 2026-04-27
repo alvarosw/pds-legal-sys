@@ -1,5 +1,6 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { LoginPage } from '@/pages/LoginPage'
 import { ClientesPage } from '@/pages/clientes/ClientesPage'
 import { ClienteCriacaoPage } from '@/pages/clientes/ClienteCriacaoPage'
 import { ClienteEdicaoPage } from '@/pages/clientes/ClienteEdicaoPage'
@@ -12,13 +13,13 @@ import { DevedorEdicaoPage } from '@/pages/devedores/DevedorEdicaoPage'
 import { ProcessosPage } from '@/pages/processos/ProcessosPage'
 import { ProcessoCriacaoPage } from '@/pages/processos/ProcessoCriacaoPage'
 import { ProcessoEdicaoPage } from '@/pages/processos/ProcessoEdicaoPage'
-import { PlaceholderPage } from '@/pages/PlaceholderPage'
 
 export function AppRouter() {
   return (
     <Routes>
+      <Route path="/login" element={<LoginPage />} />
       <Route element={<AppLayout />}>
-        <Route path="/" element={<PlaceholderPage title="Dashboard" />} />
+        <Route path="/" element={<Navigate to="/clientes" replace />} />
         <Route path="/clientes" element={<ClientesPage />} />
         <Route path="/clientes/novo" element={<ClienteCriacaoPage />} />
         <Route path="/clientes/:id" element={<ClienteEdicaoPage />} />

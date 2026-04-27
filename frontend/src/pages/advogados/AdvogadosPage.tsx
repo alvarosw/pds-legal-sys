@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
-import { getAdvogados } from '@/services/advogado.service'
+import { getAdvogados, deactivateAdvogado } from '@/services/advogado.service'
 import { formatCPF, formatPhone, formatOAB } from '@/lib/formatters'
 import type { Advogado } from '@/types'
 
@@ -20,14 +20,11 @@ export function AdvogadosPage() {
       key: 'nome_completo',
       label: 'Nome',
       sortable: true,
-      render: (value, row) => (
-        <button
-          onClick={(e) => { e.stopPropagation(); navigate(`/advogados/${row.id}`) }}
-          className="text-blue-600 hover:underline text-left bg-transparent border-0 p-0 cursor-pointer font-normal"
-        >
+      render: (value) => (
+        <span className="text-blue-600 hover:underline cursor-pointer">
           {String(value)}
-        </button>
-      ),
+        </span>
+      )
     },
     {
       key: 'numero_oab',
@@ -97,6 +94,23 @@ export function AdvogadosPage() {
     return () => clearTimeout(timer)
   }, [search, fetchAdvogados])
 
+  const handleEdit = (id: string) => {
+    navigate(`/advogados/${id}`)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Tem certeza que deseja desativar este advogado?')) {
+      try {
+        await deactivateAdvogado(id)
+        await fetchAdvogados(search)
+        setSelectedId(null)
+      } catch (err) {
+        console.error('Erro ao desativar advogado:', err)
+        alert('Erro ao desativar advogado')
+      }
+    }
+  }
+
   if (loading && advogados.length === 0) {
     return (
       <div className="px-6 py-4">
@@ -121,6 +135,8 @@ export function AdvogadosPage() {
           total={total}
           selectedId={selectedId}
           onSelect={setSelectedId}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       </div>
     </div>

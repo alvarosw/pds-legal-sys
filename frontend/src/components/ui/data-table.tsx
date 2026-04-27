@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { ChevronDown, ChevronUp, ChevronsUpDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { OptionsButton } from './options-button'
 
 export interface Column<T> {
   key: keyof T
@@ -15,6 +16,8 @@ interface DataTableProps<T> {
   total?: number
   selectedId?: string | null
   onSelect?: (id: string) => void
+  onEdit?: (id: string) => void
+  onDelete?: (id: string) => void
 }
 
 export function DataTable<T extends { id: string }>({
@@ -23,6 +26,8 @@ export function DataTable<T extends { id: string }>({
   total,
   selectedId,
   onSelect,
+  onEdit,
+  onDelete,
 }: DataTableProps<T>) {
   const [sortKey, setSortKey] = React.useState<keyof T | null>(null)
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc')
@@ -65,10 +70,12 @@ export function DataTable<T extends { id: string }>({
           Total de Registros:{' '}
           <span className="font-medium text-foreground">{total ?? data.length}</span>
         </p>
-        <button className="text-sm text-muted-foreground hover:text-foreground">
-          Opções
-          <ChevronDown className="inline ml-1 h-3 w-3" />
-        </button>
+        {selectedId && onEdit && onDelete && (
+          <OptionsButton
+            onEdit={() => onEdit(selectedId)}
+            onDelete={() => onDelete(selectedId)}
+          />
+        )}
       </div>
       <div className="overflow-auto max-h-[calc(100vh-16rem)]">
         <table className="w-full text-sm">

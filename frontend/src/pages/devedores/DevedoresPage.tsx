@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
-import { getDevedores } from '@/services/devedor.service'
+import { getDevedores, deactivateDevedor } from '@/services/devedor.service'
 import { formatCPFOrCNPJ, formatCurrency, formatDate } from '@/lib/formatters'
 import type { Devedor } from '@/types'
 
@@ -20,14 +20,11 @@ export function DevedoresPage() {
       key: 'nome_razao_social',
       label: 'Nome/Razão Social',
       sortable: true,
-      render: (value, row) => (
-        <button
-          onClick={(e) => { e.stopPropagation(); navigate(`/devedores/${row.id}`) }}
-          className="text-blue-600 hover:underline text-left bg-transparent border-0 p-0 cursor-pointer font-normal"
-        >
+      render: (value) => (
+        <span className="text-blue-600 hover:underline cursor-pointer">
           {String(value)}
-        </button>
-      ),
+        </span>
+      )
     },
     {
       key: 'cpf_cnpj',
@@ -105,6 +102,23 @@ export function DevedoresPage() {
     return () => clearTimeout(timer)
   }, [search, fetchDevedores])
 
+  const handleEdit = (id: string) => {
+    navigate(`/devedores/${id}`)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Tem certeza que deseja desativar este devedor?')) {
+      try {
+        await deactivateDevedor(id)
+        await fetchDevedores(search)
+        setSelectedId(null)
+      } catch (err) {
+        console.error('Erro ao desativar devedor:', err)
+        alert('Erro ao desativar devedor')
+      }
+    }
+  }
+
   if (loading && devedores.length === 0) {
     return (
       <div className="px-6 py-4">
@@ -129,6 +143,8 @@ export function DevedoresPage() {
           total={total}
           selectedId={selectedId}
           onSelect={setSelectedId}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       </div>
     </div>

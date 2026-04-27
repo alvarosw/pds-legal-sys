@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
-import { getProcessos } from '@/services/processo.service'
+import { getProcessos, deactivateProcesso } from '@/services/processo.service'
 import { formatDate, formatCurrency } from '@/lib/formatters'
 import type { Processo } from '@/types'
 
@@ -31,14 +31,11 @@ export function ProcessosPage() {
       key: 'numero_processo',
       label: 'Número',
       sortable: true,
-      render: (value, row) => (
-        <button
-          onClick={(e) => { e.stopPropagation(); navigate(`/processos/${row.id}`) }}
-          className="text-blue-600 hover:underline text-left bg-transparent border-0 p-0 cursor-pointer font-normal"
-        >
+      render: (value) => (
+        <span className="text-blue-600 hover:underline cursor-pointer">
           {String(value)}
-        </button>
-      ),
+        </span>
+      )
     },
     {
       key: 'tipo',
@@ -110,6 +107,23 @@ export function ProcessosPage() {
     return () => clearTimeout(timer)
   }, [search, fetchProcessos])
 
+  const handleEdit = (id: string) => {
+    navigate(`/processos/${id}`)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Tem certeza que deseja desativar este processo?')) {
+      try {
+        await deactivateProcesso(id)
+        await fetchProcessos(search)
+        setSelectedId(null)
+      } catch (err) {
+        console.error('Erro ao desativar processo:', err)
+        alert('Erro ao desativar processo')
+      }
+    }
+  }
+
   if (loading && processos.length === 0) {
     return (
       <div className="px-6 py-4">
@@ -134,6 +148,8 @@ export function ProcessosPage() {
           total={total}
           selectedId={selectedId}
           onSelect={setSelectedId}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       </div>
     </div>

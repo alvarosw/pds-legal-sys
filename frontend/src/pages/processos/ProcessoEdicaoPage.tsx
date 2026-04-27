@@ -14,19 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { processoSchema, type ProcessoFormData } from '@/schemas'
 import {
   getProcessoById,
   updateProcesso,
-  deactivateProcesso,
   getProcessoErrorMessage,
 } from '@/services/processo.service'
 import { getClientes } from '@/services/cliente.service'
@@ -37,7 +28,6 @@ export function ProcessoEdicaoPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
-  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false)
   const [loading, setLoading] = useState(true)
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [advogados, setAdvogados] = useState<Advogado[]>([])
@@ -100,16 +90,6 @@ export function ProcessoEdicaoPage() {
         valor_causa: data.valor_causa || undefined,
         observacoes: data.observacoes || undefined,
       })
-      navigate('/processos')
-    } catch (err) {
-      setError(getProcessoErrorMessage(err))
-    }
-  }
-
-  const handleDeactivate = async () => {
-    if (!id) return
-    try {
-      await deactivateProcesso(id)
       navigate('/processos')
     } catch (err) {
       setError(getProcessoErrorMessage(err))
@@ -248,42 +228,18 @@ export function ProcessoEdicaoPage() {
                 <p className="text-sm text-destructive">{error}</p>
               )}
 
-              <div className="flex items-center justify-between pt-4">
-                <Button type="button" variant="destructive" onClick={() => setShowDeactivateDialog(true)}>
-                  Encerrar/Arquivar
+              <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="secondary" onClick={() => navigate('/processos')}>
+                  Cancelar
                 </Button>
-                <div className="flex gap-3">
-                  <Button type="button" variant="secondary" onClick={() => navigate('/processos')}>
-                    Cancelar
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Salvando...' : 'Salvar'}
-                  </Button>
-                </div>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Salvando...' : 'Salvar'}
+                </Button>
               </div>
             </form>
           </CardContent>
         </Card>
       </div>
-
-      <Dialog open={showDeactivateDialog} onOpenChange={setShowDeactivateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar encerramento/arquivamento</DialogTitle>
-            <DialogDescription>
-              Deseja realmente encerrar/arquivar este processo? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="secondary" onClick={() => setShowDeactivateDialog(false)}>
-              Cancelar
-            </Button>
-            <Button variant="destructive" onClick={handleDeactivate}>
-              Encerrar/Arquivar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

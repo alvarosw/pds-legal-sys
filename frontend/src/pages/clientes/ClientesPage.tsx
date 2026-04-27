@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
-import { getClientes } from '@/services/cliente.service'
+import { getClientes, deactivateCliente } from '@/services/cliente.service'
 import { formatCPFOrCNPJ, formatPhone } from '@/lib/formatters'
 import type { Cliente } from '@/types'
 
@@ -20,14 +20,9 @@ export function ClientesPage() {
       key: 'nome_completo',
       label: 'Nome',
       sortable: true,
-      render: (value, row) => (
-        <button
-          onClick={(e) => { e.stopPropagation(); navigate(`/clientes/${row.id}`) }}
-          className="text-blue-600 hover:underline text-left bg-transparent border-0 p-0 cursor-pointer font-normal"
-        >
+      render: (value) => <span className="text-blue-600 hover:underline cursor-pointer">
           {String(value)}
-        </button>
-      ),
+        </span>,
     },
     {
       key: 'cpf_cnpj',
@@ -103,6 +98,23 @@ export function ClientesPage() {
     return () => clearTimeout(timer)
   }, [search, fetchClientes])
 
+  const handleEdit = (id: string) => {
+    navigate(`/clientes/${id}`)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm('Tem certeza que deseja desativar este cliente?')) {
+      try {
+        await deactivateCliente(id)
+        await fetchClientes(search)
+        setSelectedId(null)
+      } catch (err) {
+        console.error('Erro ao desativar cliente:', err)
+        alert('Erro ao desativar cliente')
+      }
+    }
+  }
+
   if (loading && clientes.length === 0) {
     return (
       <div className="px-6 py-4">
@@ -127,6 +139,8 @@ export function ClientesPage() {
           total={total}
           selectedId={selectedId}
           onSelect={setSelectedId}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       </div>
     </div>
