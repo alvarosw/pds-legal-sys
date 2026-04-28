@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MaskedInput } from '@/components/ui/masked-input'
 import { Label } from '@/components/ui/label'
+import { LabelWithTooltip } from '@/components/ui/label-with-tooltip'
 import { devedorSchema, type DevedorFormData } from '@/schemas'
 import { createDevedor, getDevedorErrorMessage } from '@/services/devedor.service'
 
@@ -61,7 +62,12 @@ export function DevedorCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cpf_cnpj">CPF/CNPJ *</Label>
+                <LabelWithTooltip
+                  htmlFor="cpf_cnpj"
+                  tooltip="Informe o CPF (formato: 000.000.000-00) para pessoas físicas ou CNPJ (formato: 00.000.000/0000-00) para pessoas jurídicas"
+                >
+                  CPF/CNPJ *
+                </LabelWithTooltip>
                 <Controller
                   name="cpf_cnpj"
                   control={control}
@@ -81,7 +87,12 @@ export function DevedorCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="valor_divida">Valor da Dívida *</Label>
+                <LabelWithTooltip
+                  htmlFor="valor_divida"
+                  tooltip="Valor total da dívida em reais. Deve ser maior que zero"
+                >
+                  Valor da Dívida *
+                </LabelWithTooltip>
                 <Input
                   id="valor_divida"
                   type="number"
@@ -95,7 +106,12 @@ export function DevedorCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="data_divida">Data da Dívida *</Label>
+                <LabelWithTooltip
+                  htmlFor="data_divida"
+                  tooltip="Data em que a dívida foi contraída. Não pode ser uma data futura"
+                >
+                  Data da Dívida *
+                </LabelWithTooltip>
                 <Input
                   id="data_divida"
                   type="date"
@@ -108,7 +124,12 @@ export function DevedorCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="origem_descricao">Origem/Descrição *</Label>
+                <LabelWithTooltip
+                  htmlFor="origem_descricao"
+                  tooltip="Descreva a origem da dívida (ex: contrato, nota fiscal, empréstimo) e detalhes relevantes"
+                >
+                  Origem/Descrição *
+                </LabelWithTooltip>
                 <Input id="origem_descricao" {...register('origem_descricao')} />
                 {errors.origem_descricao && (
                   <p className="text-xs text-destructive">{errors.origem_descricao.message}</p>
@@ -116,7 +137,12 @@ export function DevedorCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contato">Contato (telefone ou e-mail)</Label>
+                <LabelWithTooltip
+                  htmlFor="contato"
+                  tooltip="Telefone ou e-mail para contato com o devedor. Campo opcional"
+                >
+                  Contato (telefone ou e-mail)
+                </LabelWithTooltip>
                 <Input id="contato" {...register('contato')} />
                 {errors.contato && (
                   <p className="text-xs text-destructive">{errors.contato.message}</p>
@@ -124,7 +150,12 @@ export function DevedorCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="observacoes">Observações</Label>
+                <LabelWithTooltip
+                  htmlFor="observacoes"
+                  tooltip="Informações adicionais sobre a dívida ou o devedor que possam ser úteis"
+                >
+                  Observações
+                </LabelWithTooltip>
                 <Input id="observacoes" {...register('observacoes')} />
                 {errors.observacoes && (
                   <p className="text-xs text-destructive">{errors.observacoes.message}</p>

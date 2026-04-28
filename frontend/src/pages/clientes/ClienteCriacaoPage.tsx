@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MaskedInput } from '@/components/ui/masked-input'
 import { Label } from '@/components/ui/label'
+import { LabelWithTooltip } from '@/components/ui/label-with-tooltip'
 import { clienteSchema, type ClienteFormData } from '@/schemas'
 import { createCliente, getErrorMessage } from '@/services/cliente.service'
 
@@ -56,7 +57,12 @@ export function ClienteCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cpf_cnpj">CPF/CNPJ *</Label>
+                <LabelWithTooltip
+                  htmlFor="cpf_cnpj"
+                  tooltip="Informe o CPF (formato: 000.000.000-00) para pessoas físicas ou CNPJ (formato: 00.000.000/0000-00) para pessoas jurídicas"
+                >
+                  CPF/CNPJ *
+                </LabelWithTooltip>
                 <Controller
                   name="cpf_cnpj"
                   control={control}
@@ -76,7 +82,12 @@ export function ClienteCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone *</Label>
+                <LabelWithTooltip
+                  htmlFor="telefone"
+                  tooltip="Informe o telefone com DDD. Aceita formato de celular (00) 00000-0000 ou fixo (00) 0000-0000"
+                >
+                  Telefone *
+                </LabelWithTooltip>
                 <Controller
                   name="telefone"
                   control={control}
@@ -96,7 +107,12 @@ export function ClienteCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
+                <LabelWithTooltip
+                  htmlFor="email"
+                  tooltip="Endereço de e-mail para contato. Campo opcional, mas recomendado para comunicação"
+                >
+                  E-mail
+                </LabelWithTooltip>
                 <Input id="email" type="email" {...register('email')} />
                 {errors.email && (
                   <p className="text-xs text-destructive">{errors.email.message}</p>
@@ -104,7 +120,12 @@ export function ClienteCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="endereco">Endereço *</Label>
+                <LabelWithTooltip
+                  htmlFor="endereco"
+                  tooltip="Endereço completo do cliente: rua, número, bairro, cidade e estado"
+                >
+                  Endereço *
+                </LabelWithTooltip>
                 <Input id="endereco" {...register('endereco')} />
                 {errors.endereco && (
                   <p className="text-xs text-destructive">{errors.endereco.message}</p>
@@ -112,7 +133,12 @@ export function ClienteCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="observacoes">Observações</Label>
+                <LabelWithTooltip
+                  htmlFor="observacoes"
+                  tooltip="Informações adicionais sobre o cliente que possam ser úteis no atendimento"
+                >
+                  Observações
+                </LabelWithTooltip>
                 <Input id="observacoes" {...register('observacoes')} />
               </div>
 

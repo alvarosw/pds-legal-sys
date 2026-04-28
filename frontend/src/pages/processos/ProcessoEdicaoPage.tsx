@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { LabelWithTooltip } from '@/components/ui/label-with-tooltip'
 import {
   Select,
   SelectContent,
@@ -121,7 +122,12 @@ export function ProcessoEdicaoPage() {
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
               <div className="space-y-2">
-                <Label htmlFor="numero_processo">Número do Processo *</Label>
+                <LabelWithTooltip
+                  htmlFor="numero_processo"
+                  tooltip="Número único de identificação do processo no tribunal (ex: 0000000-00.0000.0.00.0000)"
+                >
+                  Número do Processo *
+                </LabelWithTooltip>
                 <Input id="numero_processo" {...register('numero_processo')} />
                 {errors.numero_processo && (
                   <p className="text-xs text-destructive">{errors.numero_processo.message}</p>
@@ -129,7 +135,12 @@ export function ProcessoEdicaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="tipo">Tipo do Processo *</Label>
+                <LabelWithTooltip
+                  htmlFor="tipo"
+                  tooltip="Classificação do processo (ex: Cível, Trabalhista, Criminal, Tributário, Família)"
+                >
+                  Tipo do Processo *
+                </LabelWithTooltip>
                 <Input id="tipo" {...register('tipo')} />
                 {errors.tipo && (
                   <p className="text-xs text-destructive">{errors.tipo.message}</p>
@@ -137,7 +148,11 @@ export function ProcessoEdicaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Cliente vinculado *</Label>
+                <LabelWithTooltip
+                  tooltip="Selecione o cliente que é parte deste processo. Campo obrigatório"
+                >
+                  Cliente vinculado *
+                </LabelWithTooltip>
                 <Select onValueChange={(v) => setValue('cliente_id', v)} value={watchClienteId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um cliente" />
@@ -157,7 +172,12 @@ export function ProcessoEdicaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="data_abertura">Data de Abertura *</Label>
+                <LabelWithTooltip
+                  htmlFor="data_abertura"
+                  tooltip="Data em que o processo foi aberto/iniciado no tribunal"
+                >
+                  Data de Abertura *
+                </LabelWithTooltip>
                 <Input id="data_abertura" type="date" {...register('data_abertura')} />
                 {errors.data_abertura && (
                   <p className="text-xs text-destructive">{errors.data_abertura.message}</p>
@@ -165,7 +185,12 @@ export function ProcessoEdicaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="vara_comarca">Vara/Comarca *</Label>
+                <LabelWithTooltip
+                  htmlFor="vara_comarca"
+                  tooltip="Vara e comarca onde o processo tramita (ex: 1ª Vara Cível - Salvador/BA)"
+                >
+                  Vara/Comarca *
+                </LabelWithTooltip>
                 <Input id="vara_comarca" {...register('vara_comarca')} />
                 {errors.vara_comarca && (
                   <p className="text-xs text-destructive">{errors.vara_comarca.message}</p>
@@ -173,7 +198,12 @@ export function ProcessoEdicaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status">Status *</Label>
+                <LabelWithTooltip
+                  htmlFor="status"
+                  tooltip="Situação atual do processo. Aberto: recém-iniciado; Em Andamento: em trâmite; Suspenso: pausado temporariamente; Encerrado: concluído; Arquivado: arquivado definitivamente"
+                >
+                  Status *
+                </LabelWithTooltip>
                 <Select onValueChange={(v) => setValue('status', v as ProcessoFormData['status'])} value={watch('status')}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o status" />
@@ -192,7 +222,11 @@ export function ProcessoEdicaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>Advogado responsável</Label>
+                <LabelWithTooltip
+                  tooltip="Advogado responsável pela condução do processo. Campo opcional"
+                >
+                  Advogado responsável
+                </LabelWithTooltip>
                 <Select onValueChange={(v) => setValue('advogado_resp_id', v)} value={watchAdvogadoId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um advogado" />
@@ -209,7 +243,12 @@ export function ProcessoEdicaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="valor_causa">Valor da Causa</Label>
+                <LabelWithTooltip
+                  htmlFor="valor_causa"
+                  tooltip="Valor monetário envolvido na causa. Campo opcional"
+                >
+                  Valor da Causa
+                </LabelWithTooltip>
                 <Input id="valor_causa" type="number" step="0.01" min="0" {...register('valor_causa', { valueAsNumber: true })} />
                 {errors.valor_causa && (
                   <p className="text-xs text-destructive">{errors.valor_causa.message}</p>
@@ -217,7 +256,12 @@ export function ProcessoEdicaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="observacoes">Observações</Label>
+                <LabelWithTooltip
+                  htmlFor="observacoes"
+                  tooltip="Informações adicionais sobre o processo que possam ser úteis"
+                >
+                  Observações
+                </LabelWithTooltip>
                 <Input id="observacoes" {...register('observacoes')} />
                 {errors.observacoes && (
                   <p className="text-xs text-destructive">{errors.observacoes.message}</p>

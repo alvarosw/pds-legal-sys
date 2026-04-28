@@ -16,16 +16,21 @@ export function OptionsButton({ onEdit, onDelete, disabled = false }: OptionsBut
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="text-sm" disabled={disabled}>
+        <button
+          className="text-sm px-3 py-1.5 rounded-md hover:bg-accent focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
+          disabled={disabled}
+          aria-label="Opções"
+          aria-haspopup="menu"
+        >
           Opções
-          <ChevronDown className="inline ml-1 h-3 w-3" />
+          <ChevronDown className="inline ml-1 h-3 w-3" aria-hidden="true" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={onEdit}>
+        <DropdownMenuItem onClick={onEdit} className="focus:bg-accent focus:text-accent-foreground">
           Editar
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={onDelete} className="text-red-600">
+        <DropdownMenuItem onClick={onDelete} className="text-red-600 focus:bg-accent focus:text-accent-foreground">
           Excluir
         </DropdownMenuItem>
       </DropdownMenuContent>

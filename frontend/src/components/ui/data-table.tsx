@@ -64,7 +64,7 @@ export function DataTable<T extends { id: string }>({
   }
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm">
+    <div className="rounded-lg border bg-white shadow-sm" role="region" aria-label="Tabela de dados">
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <p className="text-sm text-muted-foreground">
           Total de Registros:{' '}
@@ -78,7 +78,7 @@ export function DataTable<T extends { id: string }>({
         )}
       </div>
       <div className="overflow-auto max-h-[calc(100vh-16rem)]">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" role="table" aria-label="Dados">
           <thead className="sticky top-0 z-10">
             <tr className="bg-[hsl(var(--table-header-bg))]">
               {columns.map((col) => (
@@ -89,6 +89,14 @@ export function DataTable<T extends { id: string }>({
                     col.sortable && 'cursor-pointer select-none hover:bg-[hsl(var(--table-header-bg))] transition-colors'
                   )}
                   onClick={() => col.sortable && handleSort(col.key)}
+                  scope="col"
+                  aria-sort={
+                    sortKey === col.key
+                      ? sortOrder === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                      : 'none'
+                  }
                 >
                   <span className="flex items-center">
                     {col.label}
@@ -111,9 +119,18 @@ export function DataTable<T extends { id: string }>({
                     : 'bg-white hover:bg-[hsl(var(--table-hover-bg))]'
                 )}
                 onClick={() => onSelect?.(row.id)}
+                tabIndex={0}
+                role="row"
+                aria-selected={row.id === selectedId}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    onSelect?.(row.id)
+                  }
+                }}
               >
                 {columns.map((col) => (
-                  <td key={String(col.key)} className="px-4 py-2.5 text-foreground">
+                  <td key={String(col.key)} className="px-4 py-2.5 text-foreground" role="cell">
                     {col.render
                       ? col.render(row[col.key], row)
                       : String(row[col.key] ?? '')}
@@ -126,6 +143,7 @@ export function DataTable<T extends { id: string }>({
                 <td
                   colSpan={columns.length}
                   className="px-4 py-8 text-center text-muted-foreground"
+                  role="cell"
                 >
                   Nenhum registro encontrado.
                 </td>

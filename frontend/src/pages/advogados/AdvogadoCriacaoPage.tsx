@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MaskedInput } from '@/components/ui/masked-input'
 import { Label } from '@/components/ui/label'
+import { LabelWithTooltip } from '@/components/ui/label-with-tooltip'
 import { advogadoSchema, type AdvogadoFormData } from '@/schemas'
 import { createAdvogado, getErrorMessage } from '@/services/advogado.service'
 
@@ -56,7 +57,12 @@ export function AdvogadoCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="numero_oab">Número da OAB *</Label>
+                <LabelWithTooltip
+                  htmlFor="numero_oab"
+                  tooltip="Número de registro na OAB no formato UF + números (ex: SP123456 ou BA12345)"
+                >
+                  Número da OAB *
+                </LabelWithTooltip>
                 <Controller
                   name="numero_oab"
                   control={control}
@@ -76,7 +82,12 @@ export function AdvogadoCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cpf">CPF *</Label>
+                <LabelWithTooltip
+                  htmlFor="cpf"
+                  tooltip="CPF do advogado no formato 000.000.000-00"
+                >
+                  CPF *
+                </LabelWithTooltip>
                 <Controller
                   name="cpf"
                   control={control}
@@ -96,7 +107,12 @@ export function AdvogadoCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">E-mail *</Label>
+                <LabelWithTooltip
+                  htmlFor="email"
+                  tooltip="Endereço de e-mail profissional para contato e comunicação oficial"
+                >
+                  E-mail *
+                </LabelWithTooltip>
                 <Input id="email" type="email" {...register('email')} />
                 {errors.email && (
                   <p className="text-xs text-destructive">{errors.email.message}</p>
@@ -104,7 +120,12 @@ export function AdvogadoCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone</Label>
+                <LabelWithTooltip
+                  htmlFor="telefone"
+                  tooltip="Telefone de contato com DDD. Aceita formato de celular (00) 00000-0000 ou fixo (00) 0000-0000"
+                >
+                  Telefone
+                </LabelWithTooltip>
                 <Controller
                   name="telefone"
                   control={control}
@@ -121,7 +142,12 @@ export function AdvogadoCriacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="especialidade">Especialidade</Label>
+                <LabelWithTooltip
+                  htmlFor="especialidade"
+                  tooltip="Área de atuação do advogado (ex: Direito Civil, Direito Trabalhista, Direito Tributário)"
+                >
+                  Especialidade
+                </LabelWithTooltip>
                 <Input id="especialidade" {...register('especialidade')} />
               </div>
 
