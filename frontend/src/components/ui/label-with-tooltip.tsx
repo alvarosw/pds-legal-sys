@@ -1,7 +1,6 @@
 import { Label } from "@/components/ui/label"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { HelpCircle } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 interface LabelWithTooltipProps {
   htmlFor?: string

@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
+import { KeyboardShortcutsHelp } from '@/components/ui/keyboard-shortcuts-help'
 import { getAdvogados, deactivateAdvogado } from '@/services/advogado.service'
 import { formatCPF, formatPhone, formatOAB } from '@/lib/formatters'
+import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
 import type { Advogado } from '@/types'
 
 export function AdvogadosPage() {
@@ -14,6 +16,15 @@ export function AdvogadosPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const navigate = useNavigate()
+  const tableRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  const shortcuts = [
+    { key: 'N', description: 'Criar novo advogado' },
+    { key: 'P', description: 'Focar campo de pesquisa' },
+    { key: 'T', description: 'Focar tabela' },
+    { key: 'Esc', description: 'Desfocar e limpar seleção' },
+  ]
 
   const columns: Column<Advogado>[] = [
     {
@@ -111,10 +122,57 @@ export function AdvogadosPage() {
     }
   }
 
+  const handleNew = () => {
+    navigate('/advogados/novo')
+  }
+
+  const handleSearch = () => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }
+
+  const handleTable = () => {
+    if (tableRef.current) {
+      tableRef.current.focus()
+    }
+  }
+
+  const handleEscape = () => {
+    setSelectedId(null)
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur()
+    }
+  }
+
+  // Atalhos de teclado
+  useKeyboardShortcuts([
+    {
+      key: 'n',
+      action: handleNew,
+      description: 'Criar novo advogado',
+    },
+    {
+      key: 'p',
+      action: handleSearch,
+      description: 'Focar campo de pesquisa',
+    },
+    {
+      key: 't',
+      action: handleTable,
+      description: 'Focar tabela',
+    },
+    {
+      key: 'escape',
+      action: handleEscape,
+      description: 'Desfocar e limpar seleção',
+    },
+  ])
+
   if (loading && advogados.length === 0) {
     return (
       <div className="px-6 py-4">
-        <Header onNew={() => navigate('/advogados/novo')} onSearch={setSearch} />
+        <Header onNew={handleNew} onSearch={setSearch} searchInputRef={searchInputRef} />
         <div className="px-6 pb-6">
           <p className="text-muted-foreground">Carregando...</p>
         </div>
@@ -125,11 +183,16 @@ export function AdvogadosPage() {
   return (
     <div className="px-6 py-4">
       <Header
-        onNew={() => navigate('/advogados/novo')}
+        onNew={handleNew}
         onSearch={setSearch}
+        searchInputRef={searchInputRef}
       />
       <div className="px-6 pb-6">
+        <div className="flex justify-end mb-4">
+          <KeyboardShortcutsHelp shortcuts={shortcuts} />
+        </div>
         <DataTable
+          ref={tableRef}
           columns={columns}
           data={advogados}
           total={total}

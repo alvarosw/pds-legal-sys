@@ -20,7 +20,7 @@ interface DataTableProps<T> {
   onDelete?: (id: string) => void
 }
 
-export function DataTable<T extends { id: string }>({
+const DataTableInternal = <T extends { id: string }>({
   columns,
   data,
   total,
@@ -28,9 +28,11 @@ export function DataTable<T extends { id: string }>({
   onSelect,
   onEdit,
   onDelete,
-}: DataTableProps<T>) {
+}: DataTableProps<T>) => {
   const [sortKey, setSortKey] = React.useState<keyof T | null>(null)
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc')
+  const [focusedIndex, setFocusedIndex] = React.useState<number>(-1)
+  const internalTableRef = React.useRef<HTMLDivElement>(null)
 
   const handleSort = (key: keyof T) => {
     if (sortKey === key) {
@@ -63,8 +65,57 @@ export function DataTable<T extends { id: string }>({
     )
   }
 
+  const handleKeyDown = (event: React.KeyboardEvent, index: number, row: T) => {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault()
+        if (index < sortedData.length - 1) {
+          setFocusedIndex(index + 1)
+          onSelect?.(sortedData[index + 1].id)
+        }
+        break
+      case 'ArrowUp':
+        event.preventDefault()
+        if (index > 0) {
+          setFocusedIndex(index - 1)
+          onSelect?.(sortedData[index - 1].id)
+        }
+        break
+      case 'Enter':
+      case ' ':
+        event.preventDefault()
+        onSelect?.(row.id)
+        break
+      case 'e':
+        if (onEdit) {
+          event.preventDefault()
+          onEdit(row.id)
+        }
+        break
+      case 'd':
+        if (onDelete) {
+          event.preventDefault()
+          onDelete(row.id)
+        }
+        break
+    }
+  }
+
   return (
-    <div className="rounded-lg border bg-white shadow-sm" role="region" aria-label="Tabela de dados">
+    <div
+      className="rounded-lg border bg-white shadow-sm"
+      role="region"
+      aria-label="Tabela de dados"
+      tabIndex={0}
+      ref={internalTableRef}
+      onKeyDown={(e) => {
+        if (e.key === 'ArrowDown' && focusedIndex === -1 && sortedData.length > 0) {
+          e.preventDefault()
+          setFocusedIndex(0)
+          onSelect?.(sortedData[0].id)
+        }
+      }}
+    >
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <p className="text-sm text-muted-foreground">
           Total de Registros:{' '}
@@ -116,18 +167,14 @@ export function DataTable<T extends { id: string }>({
                     ? 'bg-[hsl(var(--table-selected-bg))]'
                     : index % 2 === 0
                     ? 'bg-[hsl(var(--table-stripe-bg))] hover:bg-[hsl(var(--table-hover-bg))]'
-                    : 'bg-white hover:bg-[hsl(var(--table-hover-bg))]'
+                    : 'bg-white hover:bg-[hsl(var(--table-hover-bg))]',
+                  focusedIndex === index && 'ring-2 ring-ring ring-offset-2'
                 )}
                 onClick={() => onSelect?.(row.id)}
-                tabIndex={0}
+                tabIndex={focusedIndex === index ? 0 : -1}
                 role="row"
                 aria-selected={row.id === selectedId}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    onSelect?.(row.id)
-                  }
-                }}
+                onKeyDown={(e) => handleKeyDown(e, index, row)}
               >
                 {columns.map((col) => (
                   <td key={String(col.key)} className="px-4 py-2.5 text-foreground" role="cell">
@@ -155,3 +202,5 @@ export function DataTable<T extends { id: string }>({
     </div>
   )
 }
+
+export const DataTable = React.forwardRef<HTMLDivElement, DataTableProps<any>>(DataTableInternal)
