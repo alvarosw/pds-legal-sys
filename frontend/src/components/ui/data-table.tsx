@@ -20,19 +20,33 @@ interface DataTableProps<T> {
   onDelete?: (id: string) => void
 }
 
-const DataTableInternal = <T extends { id: string }>({
-  columns,
-  data,
-  total,
-  selectedId,
-  onSelect,
-  onEdit,
-  onDelete,
-}: DataTableProps<T>) => {
+const DataTableInternal = <T extends { id: string }>(
+  {
+    columns,
+    data,
+    total,
+    selectedId,
+    onSelect,
+    onEdit,
+    onDelete,
+  }: DataTableProps<T>,
+  ref: React.Ref<HTMLDivElement>
+) => {
   const [sortKey, setSortKey] = React.useState<keyof T | null>(null)
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('asc')
   const [focusedIndex, setFocusedIndex] = React.useState<number>(-1)
   const internalTableRef = React.useRef<HTMLDivElement>(null)
+  const mergedRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      internalTableRef.current = node
+      if (typeof ref === 'function') {
+        ref(node)
+      } else if (ref) {
+        ref.current = node
+      }
+    },
+    [ref]
+  )
 
   const handleSort = (key: keyof T) => {
     if (sortKey === key) {
@@ -101,20 +115,55 @@ const DataTableInternal = <T extends { id: string }>({
     }
   }
 
+  const handleTableKeyDown = (event: React.KeyboardEvent) => {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault()
+        if (focusedIndex === -1 && sortedData.length > 0) {
+          setFocusedIndex(0)
+          onSelect?.(sortedData[0].id)
+        } else if (focusedIndex < sortedData.length - 1) {
+          setFocusedIndex(focusedIndex + 1)
+          onSelect?.(sortedData[focusedIndex + 1].id)
+        }
+        break
+      case 'ArrowUp':
+        event.preventDefault()
+        if (focusedIndex > 0) {
+          setFocusedIndex(focusedIndex - 1)
+          onSelect?.(sortedData[focusedIndex - 1].id)
+        }
+        break
+      case 'Enter':
+      case ' ':
+        event.preventDefault()
+        if (focusedIndex >= 0) {
+          onSelect?.(sortedData[focusedIndex].id)
+        }
+        break
+      case 'e':
+        if (onEdit && focusedIndex >= 0) {
+          event.preventDefault()
+          onEdit(sortedData[focusedIndex].id)
+        }
+        break
+      case 'd':
+        if (onDelete && focusedIndex >= 0) {
+          event.preventDefault()
+          onDelete(sortedData[focusedIndex].id)
+        }
+        break
+    }
+  }
+
   return (
     <div
       className="rounded-lg border bg-white shadow-sm"
       role="region"
       aria-label="Tabela de dados"
       tabIndex={0}
-      ref={internalTableRef}
-      onKeyDown={(e) => {
-        if (e.key === 'ArrowDown' && focusedIndex === -1 && sortedData.length > 0) {
-          e.preventDefault()
-          setFocusedIndex(0)
-          onSelect?.(sortedData[0].id)
-        }
-      }}
+      ref={mergedRef}
+      onKeyDown={handleTableKeyDown}
     >
       <div className="flex items-center justify-between px-4 py-3 border-b">
         <p className="text-sm text-muted-foreground">
