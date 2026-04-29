@@ -91,7 +91,7 @@ export function ProcessosPage() {
   const fetchProcessos = useCallback(async (q?: string) => {
     setLoading(true)
     try {
-      const result = await getProcessos({ q, page: 1, per_page: 100 })
+      const result = await getProcessos({ q, page: 1, per_page: 100, include_inactive: true })
       setProcessos(result.data)
       setTotal(result.pagination.total)
     } catch (err) {

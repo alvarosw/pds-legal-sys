@@ -8,3 +8,4 @@ advogado_bp.add_url_rule('/advogados/<id>', 'get_advogado', advogado_service.get
 advogado_bp.add_url_rule('/advogados', 'create_advogado', advogado_service.create_advogado, methods=['POST'])
 advogado_bp.add_url_rule('/advogados/<id>', 'update_advogado', advogado_service.update_advogado, methods=['PUT'])
 advogado_bp.add_url_rule('/advogados/<id>', 'deactivate_advogado', advogado_service.deactivate_advogado, methods=['DELETE'])
+advogado_bp.add_url_rule('/advogados/<id>/reactivate', 'reactivate_advogado', advogado_service.reactivate_advogado, methods=['POST'])

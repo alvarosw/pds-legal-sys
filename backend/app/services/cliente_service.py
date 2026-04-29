@@ -29,15 +29,17 @@ def get_clientes():
     q = request.args.get('q')
     sort = request.args.get('sort', 'nome_completo')
     order = request.args.get('order', 'asc')
+    include_inactive = request.args.get('include_inactive', False, type=bool)
 
     pagination = ClienteRepository.get_all(
-        page=page, per_page=per_page, search=q, sort=sort, order=order
+        page=page, per_page=per_page, search=q, sort=sort, order=order, include_inactive=include_inactive
     )
     return jsonify(paginate_response(clientes_schema.dump(pagination.items), pagination)), 200
 
 
 def get_cliente(id):
-    cliente = ClienteRepository.get_by_id(id)
+    include_inactive = request.args.get('include_inactive', False, type=bool)
+    cliente = ClienteRepository.get_by_id(id, include_inactive=include_inactive)
     if not cliente:
         return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Cliente não encontrado.'}}), 404
     return jsonify(cliente_schema.dump(cliente)), 200
@@ -98,4 +100,16 @@ def deactivate_cliente(id):
         }), 409
 
     cliente = ClienteRepository.deactivate(cliente)
+    return jsonify(cliente_schema.dump(cliente)), 200
+
+
+def reactivate_cliente(id):
+    cliente = ClienteRepository.get_by_id(id, include_inactive=True)
+    if not cliente:
+        return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Cliente não encontrado.'}}), 404
+
+    if cliente.ativo:
+        return jsonify({'error': {'code': 'CONFLICT', 'message': 'Cliente já está ativo.'}}), 409
+
+    cliente = ClienteRepository.reactivate(cliente)
     return jsonify(cliente_schema.dump(cliente)), 200

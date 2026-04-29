@@ -18,6 +18,7 @@ interface DataTableProps<T> {
   onSelect?: (id: string) => void
   onEdit?: (id: string) => void
   onDelete?: (id: string) => void
+  onReactivate?: (id: string) => void
 }
 
 const DataTableInternal = <T extends { id: string }>(
@@ -29,6 +30,7 @@ const DataTableInternal = <T extends { id: string }>(
     onSelect,
     onEdit,
     onDelete,
+    onReactivate,
   }: DataTableProps<T>,
   ref: React.Ref<HTMLDivElement>
 ) => {
@@ -112,6 +114,12 @@ const DataTableInternal = <T extends { id: string }>(
           onDelete(row.id)
         }
         break
+      case 'r':
+        if (onReactivate) {
+          event.preventDefault()
+          onReactivate(row.id)
+        }
+        break
     }
   }
 
@@ -153,6 +161,12 @@ const DataTableInternal = <T extends { id: string }>(
           onDelete(sortedData[focusedIndex].id)
         }
         break
+      case 'r':
+        if (onReactivate && focusedIndex >= 0) {
+          event.preventDefault()
+          onReactivate(sortedData[focusedIndex].id)
+        }
+        break
     }
   }
 
@@ -174,6 +188,7 @@ const DataTableInternal = <T extends { id: string }>(
           <OptionsButton
             onEdit={() => onEdit(selectedId)}
             onDelete={() => onDelete(selectedId)}
+            onReactivate={onReactivate ? () => onReactivate(selectedId) : undefined}
           />
         )}
       </div>

@@ -4,8 +4,10 @@ from app.models.cliente import Cliente
 
 class ClienteRepository:
     @staticmethod
-    def get_all(page=1, per_page=20, search=None, sort='nome_completo', order='asc'):
-        query = Cliente.query.filter_by(ativo=True)
+    def get_all(page=1, per_page=20, search=None, sort='nome_completo', order='asc', include_inactive=False):
+        query = Cliente.query
+        if not include_inactive:
+            query = query.filter_by(ativo=True)
 
         if search:
             search_filter = (
@@ -25,12 +27,18 @@ class ClienteRepository:
         return pagination
 
     @staticmethod
-    def get_by_id(id):
-        return Cliente.query.filter_by(id=id, ativo=True).first()
+    def get_by_id(id, include_inactive=False):
+        query = Cliente.query.filter_by(id=id)
+        if not include_inactive:
+            query = query.filter_by(ativo=True)
+        return query.first()
 
     @staticmethod
-    def get_by_cpf_cnpj(cpf_cnpj):
-        return Cliente.query.filter_by(cpf_cnpj=cpf_cnpj, ativo=True).first()
+    def get_by_cpf_cnpj(cpf_cnpj, include_inactive=False):
+        query = Cliente.query.filter_by(cpf_cnpj=cpf_cnpj)
+        if not include_inactive:
+            query = query.filter_by(ativo=True)
+        return query.first()
 
     @staticmethod
     def create(data):
@@ -50,5 +58,11 @@ class ClienteRepository:
     @staticmethod
     def deactivate(cliente):
         cliente.ativo = False
+        db.session.commit()
+        return cliente
+
+    @staticmethod
+    def reactivate(cliente):
+        cliente.ativo = True
         db.session.commit()
         return cliente

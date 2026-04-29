@@ -79,7 +79,7 @@ export function AdvogadosPage() {
   const fetchAdvogados = useCallback(async (q?: string) => {
     setLoading(true)
     try {
-      const result = await getAdvogados({ q, page: 1, per_page: 100 })
+      const result = await getAdvogados({ q, page: 1, per_page: 100, include_inactive: true })
       setAdvogados(result.data)
       setTotal(result.pagination.total)
     } catch (err) {

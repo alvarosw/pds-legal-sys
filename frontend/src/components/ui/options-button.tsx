@@ -9,10 +9,11 @@ import {
 interface OptionsButtonProps {
   onEdit: () => void
   onDelete: () => void
+  onReactivate?: () => void
   disabled?: boolean
 }
 
-export function OptionsButton({ onEdit, onDelete, disabled = false }: OptionsButtonProps) {
+export function OptionsButton({ onEdit, onDelete, onReactivate, disabled = false }: OptionsButtonProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,6 +31,11 @@ export function OptionsButton({ onEdit, onDelete, disabled = false }: OptionsBut
         <DropdownMenuItem onClick={onEdit} className="focus:bg-accent focus:text-accent-foreground">
           Editar
         </DropdownMenuItem>
+        {onReactivate && (
+          <DropdownMenuItem onClick={onReactivate} className="text-green-600 focus:bg-accent focus:text-accent-foreground">
+            Reativar
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={onDelete} className="text-red-600 focus:bg-accent focus:text-accent-foreground">
           Excluir
         </DropdownMenuItem>

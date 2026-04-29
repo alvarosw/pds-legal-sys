@@ -4,8 +4,10 @@ from app.models.processo import Processo
 
 class ProcessoRepository:
     @staticmethod
-    def get_all(page=1, per_page=20, search=None, sort='numero_processo', order='asc'):
-        query = Processo.query.filter_by(ativo=True)
+    def get_all(page=1, per_page=20, search=None, sort='numero_processo', order='asc', include_inactive=False):
+        query = Processo.query
+        if not include_inactive:
+            query = query.filter_by(ativo=True)
 
         if search:
             search_filter = (
@@ -26,12 +28,18 @@ class ProcessoRepository:
         return pagination
 
     @staticmethod
-    def get_by_id(id):
-        return Processo.query.filter_by(id=id, ativo=True).first()
+    def get_by_id(id, include_inactive=False):
+        query = Processo.query.filter_by(id=id)
+        if not include_inactive:
+            query = query.filter_by(ativo=True)
+        return query.first()
 
     @staticmethod
-    def get_by_numero(numero):
-        return Processo.query.filter_by(numero_processo=numero, ativo=True).first()
+    def get_by_numero(numero, include_inactive=False):
+        query = Processo.query.filter_by(numero_processo=numero)
+        if not include_inactive:
+            query = query.filter_by(ativo=True)
+        return query.first()
 
     @staticmethod
     def create(data):
@@ -51,5 +59,11 @@ class ProcessoRepository:
     @staticmethod
     def deactivate(processo):
         processo.ativo = False
+        db.session.commit()
+        return processo
+
+    @staticmethod
+    def reactivate(processo):
+        processo.ativo = True
         db.session.commit()
         return processo

@@ -27,15 +27,17 @@ def get_advogados():
     q = request.args.get('q')
     sort = request.args.get('sort', 'nome_completo')
     order = request.args.get('order', 'asc')
+    include_inactive = request.args.get('include_inactive', False, type=bool)
 
     pagination = AdvogadoRepository.get_all(
-        page=page, per_page=per_page, search=q, sort=sort, order=order
+        page=page, per_page=per_page, search=q, sort=sort, order=order, include_inactive=include_inactive
     )
     return jsonify(paginate_response(advogados_schema.dump(pagination.items), pagination)), 200
 
 
 def get_advogado(id):
-    advogado = AdvogadoRepository.get_by_id(id)
+    include_inactive = request.args.get('include_inactive', False, type=bool)
+    advogado = AdvogadoRepository.get_by_id(id, include_inactive=include_inactive)
     if not advogado:
         return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Advogado não encontrado.'}}), 404
     return jsonify(advogado_schema.dump(advogado)), 200
@@ -81,4 +83,16 @@ def deactivate_advogado(id):
     if not advogado:
         return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Advogado não encontrado.'}}), 404
     advogado = AdvogadoRepository.deactivate(advogado)
+    return jsonify(advogado_schema.dump(advogado)), 200
+
+
+def reactivate_advogado(id):
+    advogado = AdvogadoRepository.get_by_id(id, include_inactive=True)
+    if not advogado:
+        return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Advogado não encontrado.'}}), 404
+
+    if advogado.ativo:
+        return jsonify({'error': {'code': 'CONFLICT', 'message': 'Advogado já está ativo.'}}), 409
+
+    advogado = AdvogadoRepository.reactivate(advogado)
     return jsonify(advogado_schema.dump(advogado)), 200

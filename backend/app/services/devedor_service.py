@@ -29,15 +29,17 @@ def get_devedores():
     q = request.args.get('q')
     sort = request.args.get('sort', 'nome_razao_social')
     order = request.args.get('order', 'asc')
+    include_inactive = request.args.get('include_inactive', False, type=bool)
 
     pagination = DevedorRepository.get_all(
-        page=page, per_page=per_page, search=q, sort=sort, order=order
+        page=page, per_page=per_page, search=q, sort=sort, order=order, include_inactive=include_inactive
     )
     return jsonify(paginate_response(devedores_schema.dump(pagination.items), pagination)), 200
 
 
 def get_devedor(id):
-    devedor = DevedorRepository.get_by_id(id)
+    include_inactive = request.args.get('include_inactive', False, type=bool)
+    devedor = DevedorRepository.get_by_id(id, include_inactive=include_inactive)
     if not devedor:
         return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Devedor não encontrado.'}}), 404
     return jsonify(devedor_schema.dump(devedor)), 200
@@ -107,4 +109,16 @@ def deactivate_devedor(id):
             }), 409
 
     devedor = DevedorRepository.deactivate(devedor)
+    return jsonify(devedor_schema.dump(devedor)), 200
+
+
+def reactivate_devedor(id):
+    devedor = DevedorRepository.get_by_id(id, include_inactive=True)
+    if not devedor:
+        return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Devedor não encontrado.'}}), 404
+
+    if devedor.ativo:
+        return jsonify({'error': {'code': 'CONFLICT', 'message': 'Devedor já está ativo.'}}), 409
+
+    devedor = DevedorRepository.reactivate(devedor)
     return jsonify(devedor_schema.dump(devedor)), 200

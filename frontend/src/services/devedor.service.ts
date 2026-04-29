@@ -1,13 +1,13 @@
 import { api } from '../services/api'
 import type { Devedor, PaginatedResponse, ApiError } from '../types'
 
-export async function getDevedores(params?: { page?: number; per_page?: number; q?: string; sort?: string; order?: string }) {
+export async function getDevedores(params?: { page?: number; per_page?: number; q?: string; sort?: string; order?: string; include_inactive?: boolean }) {
   const { data } = await api.get<PaginatedResponse<Devedor>>('/devedores', { params })
   return data
 }
 
-export async function getDevedorById(id: string) {
-  const { data } = await api.get<Devedor>(`/devedores/${id}`)
+export async function getDevedorById(id: string, includeInactive?: boolean) {
+  const { data } = await api.get<Devedor>(`/devedores/${id}`, { params: { include_inactive: includeInactive } })
   return data
 }
 
@@ -23,6 +23,11 @@ export async function updateDevedor(id: string, payload: Partial<Devedor>) {
 
 export async function deactivateDevedor(id: string) {
   const { data } = await api.delete<Devedor>(`/devedores/${id}`)
+  return data
+}
+
+export async function reactivateDevedor(id: string) {
+  const { data } = await api.post<Devedor>(`/devedores/${id}/reactivate`)
   return data
 }
 

@@ -31,15 +31,17 @@ def get_processos():
     q = request.args.get('q')
     sort = request.args.get('sort', 'numero_processo')
     order = request.args.get('order', 'asc')
+    include_inactive = request.args.get('include_inactive', False, type=bool)
 
     pagination = ProcessoRepository.get_all(
-        page=page, per_page=per_page, search=q, sort=sort, order=order
+        page=page, per_page=per_page, search=q, sort=sort, order=order, include_inactive=include_inactive
     )
     return jsonify(paginate_response(processos_schema.dump(pagination.items), pagination)), 200
 
 
 def get_processo(id):
-    processo = ProcessoRepository.get_by_id(id)
+    include_inactive = request.args.get('include_inactive', False, type=bool)
+    processo = ProcessoRepository.get_by_id(id, include_inactive=include_inactive)
     if not processo:
         return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Processo não encontrado.'}}), 404
     return jsonify(processo_schema.dump(processo)), 200
@@ -120,4 +122,16 @@ def deactivate_processo(id):
         }), 409
 
     processo = ProcessoRepository.deactivate(processo)
+    return jsonify(processo_schema.dump(processo)), 200
+
+
+def reactivate_processo(id):
+    processo = ProcessoRepository.get_by_id(id, include_inactive=True)
+    if not processo:
+        return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Processo não encontrado.'}}), 404
+
+    if processo.ativo:
+        return jsonify({'error': {'code': 'CONFLICT', 'message': 'Processo já está ativo.'}}), 409
+
+    processo = ProcessoRepository.reactivate(processo)
     return jsonify(processo_schema.dump(processo)), 200

@@ -1,13 +1,13 @@
 import { api } from '../services/api'
 import type { Processo, PaginatedResponse, ApiError } from '../types'
 
-export async function getProcessos(params?: { page?: number; per_page?: number; q?: string; sort?: string; order?: string }) {
+export async function getProcessos(params?: { page?: number; per_page?: number; q?: string; sort?: string; order?: string; include_inactive?: boolean }) {
   const { data } = await api.get<PaginatedResponse<Processo>>('/processos', { params })
   return data
 }
 
-export async function getProcessoById(id: string) {
-  const { data } = await api.get<Processo>(`/processos/${id}`)
+export async function getProcessoById(id: string, includeInactive?: boolean) {
+  const { data } = await api.get<Processo>(`/processos/${id}`, { params: { include_inactive: includeInactive } })
   return data
 }
 
@@ -23,6 +23,11 @@ export async function updateProcesso(id: string, payload: Partial<Processo>) {
 
 export async function deactivateProcesso(id: string) {
   const { data } = await api.delete<Processo>(`/processos/${id}`)
+  return data
+}
+
+export async function reactivateProcesso(id: string) {
+  const { data } = await api.post<Processo>(`/processos/${id}/reactivate`)
   return data
 }
 

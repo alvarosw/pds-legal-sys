@@ -71,7 +71,7 @@ export function ClientesPage() {
   const fetchClientes = useCallback(async (q?: string) => {
     setLoading(true)
     try {
-      const result = await getClientes({ q, page: 1, per_page: 100 })
+      const result = await getClientes({ q, page: 1, per_page: 100, include_inactive: true })
       setClientes(result.data)
       setTotal(result.pagination.total)
     } catch (err) {

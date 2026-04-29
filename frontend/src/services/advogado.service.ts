@@ -1,13 +1,13 @@
 import { api } from '../services/api'
 import type { Advogado, PaginatedResponse, ApiError } from '../types'
 
-export async function getAdvogados(params?: { page?: number; per_page?: number; q?: string; sort?: string; order?: string }) {
+export async function getAdvogados(params?: { page?: number; per_page?: number; q?: string; sort?: string; order?: string; include_inactive?: boolean }) {
   const { data } = await api.get<PaginatedResponse<Advogado>>('/advogados', { params })
   return data
 }
 
-export async function getAdvogadoById(id: string) {
-  const { data } = await api.get<Advogado>(`/advogados/${id}`)
+export async function getAdvogadoById(id: string, includeInactive?: boolean) {
+  const { data } = await api.get<Advogado>(`/advogados/${id}`, { params: { include_inactive: includeInactive } })
   return data
 }
 
@@ -23,6 +23,11 @@ export async function updateAdvogado(id: string, payload: Partial<Advogado>) {
 
 export async function deactivateAdvogado(id: string) {
   const { data } = await api.delete<Advogado>(`/advogados/${id}`)
+  return data
+}
+
+export async function reactivateAdvogado(id: string) {
+  const { data } = await api.post<Advogado>(`/advogados/${id}/reactivate`)
   return data
 }
 

@@ -86,7 +86,7 @@ export function DevedoresPage() {
   const fetchDevedores = useCallback(async (q?: string) => {
     setLoading(true)
     try {
-      const result = await getDevedores({ q, page: 1, per_page: 100 })
+      const result = await getDevedores({ q, page: 1, per_page: 100, include_inactive: true })
       setDevedores(result.data)
       setTotal(result.pagination.total)
     } catch (err) {

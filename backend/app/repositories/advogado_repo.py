@@ -4,8 +4,10 @@ from app.models.advogado import Advogado
 
 class AdvogadoRepository:
     @staticmethod
-    def get_all(page=1, per_page=20, search=None, sort='nome_completo', order='asc'):
-        query = Advogado.query.filter_by(ativo=True)
+    def get_all(page=1, per_page=20, search=None, sort='nome_completo', order='asc', include_inactive=False):
+        query = Advogado.query
+        if not include_inactive:
+            query = query.filter_by(ativo=True)
 
         if search:
             search_filter = (
@@ -25,12 +27,18 @@ class AdvogadoRepository:
         return pagination
 
     @staticmethod
-    def get_by_id(id):
-        return Advogado.query.filter_by(id=id, ativo=True).first()
+    def get_by_id(id, include_inactive=False):
+        query = Advogado.query.filter_by(id=id)
+        if not include_inactive:
+            query = query.filter_by(ativo=True)
+        return query.first()
 
     @staticmethod
-    def get_by_oab(numero_oab):
-        return Advogado.query.filter_by(numero_oab=numero_oab, ativo=True).first()
+    def get_by_oab(numero_oab, include_inactive=False):
+        query = Advogado.query.filter_by(numero_oab=numero_oab)
+        if not include_inactive:
+            query = query.filter_by(ativo=True)
+        return query.first()
 
     @staticmethod
     def create(data):
@@ -50,5 +58,11 @@ class AdvogadoRepository:
     @staticmethod
     def deactivate(advogado):
         advogado.ativo = False
+        db.session.commit()
+        return advogado
+
+    @staticmethod
+    def reactivate(advogado):
+        advogado.ativo = True
         db.session.commit()
         return advogado

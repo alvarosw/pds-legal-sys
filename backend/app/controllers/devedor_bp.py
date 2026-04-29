@@ -8,3 +8,4 @@ devedor_bp.add_url_rule('/devedores/<id>', 'get_devedor', devedor_service.get_de
 devedor_bp.add_url_rule('/devedores', 'create_devedor', devedor_service.create_devedor, methods=['POST'])
 devedor_bp.add_url_rule('/devedores/<id>', 'update_devedor', devedor_service.update_devedor, methods=['PUT'])
 devedor_bp.add_url_rule('/devedores/<id>', 'deactivate_devedor', devedor_service.deactivate_devedor, methods=['DELETE'])
+devedor_bp.add_url_rule('/devedores/<id>/reactivate', 'reactivate_devedor', devedor_service.reactivate_devedor, methods=['POST'])
