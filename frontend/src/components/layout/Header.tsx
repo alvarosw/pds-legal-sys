@@ -1,6 +1,7 @@
 import { Search, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { forwardRef } from 'react'
+import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
 
 interface HeaderProps {
   onNew?: () => void
@@ -9,10 +10,18 @@ interface HeaderProps {
   searchInputRef?: React.RefObject<HTMLInputElement | null>
 }
 
+const listHeaderShortcuts = [
+  { key: 'N', description: 'Novo registro' },
+  { key: 'P', description: 'Focar campo de pesquisa' },
+  { key: 'T', description: 'Focar tabela' },
+  { key: 'Esc', description: 'Desfocar e limpar seleção' },
+]
+
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(
   ({ onNew, onSearch, className, searchInputRef }, ref) => {
     return (
-      <header className={cn('flex items-center gap-3 px-6 py-3', className)} ref={ref}>
+      <header className={cn('flex w-full justify-between items-center px-6 py-3', className)} ref={ref}>
+        <div className="flex items-center gap-3">
         {onNew && (
           <button
             onClick={onNew}
@@ -24,16 +33,18 @@ export const Header = forwardRef<HTMLDivElement, HeaderProps>(
           </button>
         )}
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-          <input
-            ref={searchInputRef}
-            type="text"
-            placeholder="Pesquisar..."
-            onChange={(e) => onSearch?.(e.target.value)}
-            className="w-full rounded-lg border-0 bg-white py-2 pl-10 pr-4 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            aria-label="Campo de pesquisa"
-          />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Pesquisar..."
+              onChange={(e) => onSearch?.(e.target.value)}
+              className="w-full rounded-lg border-0 bg-white py-2 pl-10 pr-4 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label="Campo de pesquisa"
+            />
+          </div>
         </div>
+        <KeyboardShortcutsHelp shortcuts={listHeaderShortcuts} />
       </header>
     )
   }

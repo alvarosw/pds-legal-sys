@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
-import { KeyboardShortcutsHelp } from '@/components/ui/keyboard-shortcuts-help'
 import { getProcessos, deactivateProcesso } from '@/services/processo.service'
 import { formatDate, formatCurrency } from '@/lib/formatters'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
@@ -29,13 +28,6 @@ export function ProcessosPage() {
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
-
-  const shortcuts = [
-    { key: 'N', description: 'Criar novo processo' },
-    { key: 'P', description: 'Focar campo de pesquisa' },
-    { key: 'T', description: 'Focar tabela' },
-    { key: 'Esc', description: 'Desfocar e limpar seleção' },
-  ]
 
   const columns: Column<Processo>[] = [
     {
@@ -201,9 +193,6 @@ export function ProcessosPage() {
         searchInputRef={searchInputRef}
       />
       <div className="px-6 pb-6">
-        <div className="flex justify-end mb-4">
-          <KeyboardShortcutsHelp shortcuts={shortcuts} />
-        </div>
         <DataTable
           ref={tableRef}
           columns={columns}

@@ -7,6 +7,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils';
 
 interface Shortcut {
   key: string
@@ -17,11 +18,11 @@ interface KeyboardShortcutsHelpProps {
   shortcuts: Shortcut[]
 }
 
-export function KeyboardShortcutsHelp({ shortcuts }: KeyboardShortcutsHelpProps) {
+export function KeyboardShortcutsHelp({ shortcuts, ...rest }: KeyboardShortcutsHelpProps & React.HTMLAttributes<HTMLButtonElement>) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
+        <Button variant="ghost" size="sm" className={cn("gap-2", rest.className)} {...rest}>
           <Keyboard className="h-4 w-4" />
           Atalhos
         </Button>
