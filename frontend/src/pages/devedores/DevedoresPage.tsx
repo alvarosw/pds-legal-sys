@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { getDevedores, deactivateDevedor } from '@/services/devedor.service'
 import { formatCPFOrCNPJ, formatCurrency, formatDate } from '@/lib/formatters'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
@@ -14,6 +15,8 @@ export function DevedoresPage() {
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [devedorToDelete, setDevedorToDelete] = useState<string | null>(null)
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -27,7 +30,7 @@ export function DevedoresPage() {
         <span className="text-blue-600 hover:underline cursor-pointer">
           {String(value)}
         </span>
-      )
+      ),
     },
     {
       key: 'cpf_cnpj',
@@ -109,16 +112,27 @@ export function DevedoresPage() {
     navigate(`/devedores/${id}`)
   }
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Tem certeza que deseja desativar este devedor?')) {
-      try {
-        await deactivateDevedor(id)
-        await fetchDevedores(search)
-        setSelectedId(null)
-      } catch (err) {
-        console.error('Erro ao desativar devedor:', err)
+  const handleDelete = (id: string) => {
+    setDevedorToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!devedorToDelete) return
+    try {
+      await deactivateDevedor(devedorToDelete)
+      await fetchDevedores(search)
+      setSelectedId(null)
+      setDevedorToDelete(null)
+    } catch (err: any) {
+      console.error('Erro ao desativar devedor:', err)
+      if (err.response?.data?.error?.message) {
+        alert(`Erro: ${err.response.data.error.message}`)
+      } else {
         alert('Erro ao desativar devedor')
       }
+    } finally {
+      setDevedorToDelete(null)
     }
   }
 
@@ -145,7 +159,6 @@ export function DevedoresPage() {
     }
   }
 
-  // Atalhos de teclado
   useKeyboardShortcuts([
     {
       key: 'n',
@@ -199,6 +212,17 @@ export function DevedoresPage() {
           onDelete={handleDelete}
         />
       </div>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open)
+          if (!open) setDevedorToDelete(null)
+        }}
+        title="Confirmar exclusão"
+        description="Tem certeza que deseja desativar este devedor?"
+        confirmLabel="Desativar"
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

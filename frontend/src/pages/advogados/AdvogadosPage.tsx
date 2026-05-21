@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { getAdvogados, deactivateAdvogado } from '@/services/advogado.service'
 import { formatCPF, formatPhone, formatOAB } from '@/lib/formatters'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
@@ -14,10 +15,11 @@ export function AdvogadosPage() {
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [advogadoToDelete, setAdvogadoToDelete] = useState<string | null>(null)
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
-
 
   const columns: Column<Advogado>[] = [
     {
@@ -28,7 +30,7 @@ export function AdvogadosPage() {
         <span className="text-blue-600 hover:underline cursor-pointer">
           {String(value)}
         </span>
-      )
+      ),
     },
     {
       key: 'numero_oab',
@@ -102,16 +104,27 @@ export function AdvogadosPage() {
     navigate(`/advogados/${id}`)
   }
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Tem certeza que deseja desativar este advogado?')) {
-      try {
-        await deactivateAdvogado(id)
-        await fetchAdvogados(search)
-        setSelectedId(null)
-      } catch (err) {
-        console.error('Erro ao desativar advogado:', err)
+  const handleDelete = (id: string) => {
+    setAdvogadoToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!advogadoToDelete) return
+    try {
+      await deactivateAdvogado(advogadoToDelete)
+      await fetchAdvogados(search)
+      setSelectedId(null)
+      setAdvogadoToDelete(null)
+    } catch (err: any) {
+      console.error('Erro ao desativar advogado:', err)
+      if (err.response?.data?.error?.message) {
+        alert(`Erro: ${err.response.data.error.message}`)
+      } else {
         alert('Erro ao desativar advogado')
       }
+    } finally {
+      setAdvogadoToDelete(null)
     }
   }
 
@@ -138,7 +151,6 @@ export function AdvogadosPage() {
     }
   }
 
-  // Atalhos de teclado
   useKeyboardShortcuts([
     {
       key: 'n',
@@ -192,6 +204,17 @@ export function AdvogadosPage() {
           onDelete={handleDelete}
         />
       </div>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open)
+          if (!open) setAdvogadoToDelete(null)
+        }}
+        title="Confirmar exclusão"
+        description="Tem certeza que deseja desativar este advogado?"
+        confirmLabel="Desativar"
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

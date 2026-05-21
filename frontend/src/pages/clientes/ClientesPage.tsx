@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { getClientes, deactivateCliente } from '@/services/cliente.service'
 import { formatCPFOrCNPJ, formatPhone } from '@/lib/formatters'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
@@ -14,6 +15,8 @@ export function ClientesPage() {
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [clienteToDelete, setClienteToDelete] = useState<string | null>(null)
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -27,7 +30,7 @@ export function ClientesPage() {
         <span className="text-blue-600 hover:underline cursor-pointer">
           {String(value)}
         </span>
-      )
+      ),
     },
     {
       key: 'cpf_cnpj',
@@ -94,16 +97,27 @@ export function ClientesPage() {
     navigate(`/clientes/${id}`)
   }
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Tem certeza que deseja desativar este cliente?')) {
-      try {
-        await deactivateCliente(id)
-        await fetchClientes(search)
-        setSelectedId(null)
-      } catch (err) {
-        console.error('Erro ao desativar cliente:', err)
+  const handleDelete = (id: string) => {
+    setClienteToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!clienteToDelete) return
+    try {
+      await deactivateCliente(clienteToDelete)
+      await fetchClientes(search)
+      setSelectedId(null)
+      setClienteToDelete(null)
+    } catch (err: any) {
+      console.error('Erro ao desativar cliente:', err)
+      if (err.response?.data?.error?.message) {
+        alert(`Erro: ${err.response.data.error.message}`)
+      } else {
         alert('Erro ao desativar cliente')
       }
+    } finally {
+      setClienteToDelete(null)
     }
   }
 
@@ -130,7 +144,6 @@ export function ClientesPage() {
     }
   }
 
-  // Atalhos de teclado
   useKeyboardShortcuts([
     {
       key: 'n',
@@ -184,6 +197,17 @@ export function ClientesPage() {
           onDelete={handleDelete}
         />
       </div>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open)
+          if (!open) setClienteToDelete(null)
+        }}
+        title="Confirmar exclusão"
+        description="Tem certeza que deseja desativar este cliente?"
+        confirmLabel="Desativar"
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

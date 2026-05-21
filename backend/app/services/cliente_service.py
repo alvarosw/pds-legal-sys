@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from app.extensions import db
 from app.schemas.cliente import ClienteSchema, ClienteCreateSchema, ClienteUpdateSchema
 from app.repositories.cliente_repo import ClienteRepository
 from app.models.processo import Processo
@@ -85,22 +86,27 @@ def update_cliente(id):
 
 
 def deactivate_cliente(id):
-    cliente = ClienteRepository.get_by_id(id)
-    if not cliente:
-        return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Cliente não encontrado.'}}), 404
+    try:
+        cliente = ClienteRepository.get_by_id(id)
+        if not cliente:
+            return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Cliente não encontrado.'}}), 404
 
-    # RF004: Verificar se há processos ativos vinculados
-    processos_ativos = Processo.query.filter_by(cliente_id=id, ativo=True).all()
-    if processos_ativos:
-        return jsonify({
-            'error': {
-                'code': 'CONFLICT',
-                'message': f'Não é possível desativar: existem {len(processos_ativos)} processo(s) ativo(s) vinculado(s).'
-            }
-        }), 409
+        # RF004: Verificar se há processos ativos vinculados
+        processos_ativos = Processo.query.filter_by(cliente_id=id, ativo=True).all()
+        if processos_ativos:
+            return jsonify({
+                'error': {
+                    'code': 'CONFLICT',
+                    'message': f'Não é possível desativar: existem {len(processos_ativos)} processo(s) ativo(s) vinculado(s).'
+                }
+            }), 409
 
-    cliente = ClienteRepository.deactivate(cliente)
-    return jsonify(cliente_schema.dump(cliente)), 200
+        cliente.ativo = False
+        db.session.commit()
+        return jsonify(cliente_schema.dump(cliente)), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': {'code': 'INTERNAL_ERROR', 'message': f'Erro ao desativar cliente: {str(e)}'}}), 500
 
 
 def reactivate_cliente(id):

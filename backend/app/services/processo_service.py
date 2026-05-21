@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from app.extensions import db
 from app.schemas.processo import ProcessoSchema, ProcessoCreateSchema, ProcessoUpdateSchema
 from app.repositories.processo_repo import ProcessoRepository
 from app.models.cliente import Cliente
@@ -107,22 +108,27 @@ def update_processo(id):
 
 
 def deactivate_processo(id):
-    processo = ProcessoRepository.get_by_id(id)
-    if not processo:
-        return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Processo não encontrado.'}}), 404
+    try:
+        processo = ProcessoRepository.get_by_id(id)
+        if not processo:
+            return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Processo não encontrado.'}}), 404
 
-    # RF008: Verificar se há devedores ativos vinculados (pendências)
-    devedores_ativos = Devedor.query.filter_by(processo_id=id, ativo=True).all()
-    if devedores_ativos:
-        return jsonify({
-            'error': {
-                'code': 'CONFLICT',
-                'message': f'Não é possível encerrar: existem {len(devedores_ativos)} devedor(es) ativo(s) vinculado(s).'
-            }
-        }), 409
+        # RF008: Verificar se há devedores ativos vinculados (pendências)
+        devedores_ativos = Devedor.query.filter_by(processo_id=id, ativo=True).all()
+        if devedores_ativos:
+            return jsonify({
+                'error': {
+                    'code': 'CONFLICT',
+                    'message': f'Não é possível encerrar: existem {len(devedores_ativos)} devedor(es) ativo(s) vinculado(s).'
+                }
+            }), 409
 
-    processo = ProcessoRepository.deactivate(processo)
-    return jsonify(processo_schema.dump(processo)), 200
+        processo.ativo = False
+        db.session.commit()
+        return jsonify(processo_schema.dump(processo)), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': {'code': 'INTERNAL_ERROR', 'message': f'Erro ao desativar processo: {str(e)}'}}), 500
 
 
 def reactivate_processo(id):

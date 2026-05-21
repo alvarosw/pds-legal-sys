@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from app.extensions import db
 from app.schemas.devedor import DevedorSchema, DevedorCreateSchema, DevedorUpdateSchema
 from app.repositories.devedor_repo import DevedorRepository
 from app.models.processo import Processo
@@ -93,23 +94,28 @@ def update_devedor(id):
 
 
 def deactivate_devedor(id):
-    devedor = DevedorRepository.get_by_id(id)
-    if not devedor:
-        return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Devedor não encontrado.'}}), 404
+    try:
+        devedor = DevedorRepository.get_by_id(id)
+        if not devedor:
+            return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Devedor não encontrado.'}}), 404
 
-    # RF012: Verificar se há vínculos ativos (processo vinculado ativo ou cobranças/acordos)
-    if devedor.processo_id:
-        processo_vinculado = Processo.query.filter_by(id=devedor.processo_id, ativo=True).first()
-        if processo_vinculado:
-            return jsonify({
-                'error': {
-                    'code': 'CONFLICT',
-                    'message': 'Não é possível desativar: existe processo ativo vinculado a este devedor.'
-                }
-            }), 409
+        # RF012: Verificar se há processo ativo vinculado
+        if devedor.processo_id:
+            processo_vinculado = Processo.query.filter_by(id=devedor.processo_id, ativo=True).first()
+            if processo_vinculado:
+                return jsonify({
+                    'error': {
+                        'code': 'CONFLICT',
+                        'message': 'Não é possível desativar: existe processo ativo vinculado a este devedor.'
+                    }
+                }), 409
 
-    devedor = DevedorRepository.deactivate(devedor)
-    return jsonify(devedor_schema.dump(devedor)), 200
+        devedor.ativo = False
+        db.session.commit()
+        return jsonify(devedor_schema.dump(devedor)), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': {'code': 'INTERNAL_ERROR', 'message': f'Erro ao desativar devedor: {str(e)}'}}), 500
 
 
 def reactivate_devedor(id):

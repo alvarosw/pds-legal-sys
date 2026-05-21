@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { DataTable, type Column } from '@/components/ui/data-table'
 import { Badge } from '@/components/ui/badge'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { getProcessos, deactivateProcesso } from '@/services/processo.service'
 import { formatDate, formatCurrency } from '@/lib/formatters'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
@@ -25,6 +26,8 @@ export function ProcessosPage() {
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [processoToDelete, setProcessoToDelete] = useState<string | null>(null)
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
@@ -38,7 +41,7 @@ export function ProcessosPage() {
         <span className="text-blue-600 hover:underline cursor-pointer">
           {String(value)}
         </span>
-      )
+      ),
     },
     {
       key: 'tipo',
@@ -114,16 +117,27 @@ export function ProcessosPage() {
     navigate(`/processos/${id}`)
   }
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Tem certeza que deseja desativar este processo?')) {
-      try {
-        await deactivateProcesso(id)
-        await fetchProcessos(search)
-        setSelectedId(null)
-      } catch (err) {
-        console.error('Erro ao desativar processo:', err)
+  const handleDelete = (id: string) => {
+    setProcessoToDelete(id)
+    setDeleteDialogOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    if (!processoToDelete) return
+    try {
+      await deactivateProcesso(processoToDelete)
+      await fetchProcessos(search)
+      setSelectedId(null)
+      setProcessoToDelete(null)
+    } catch (err: any) {
+      console.error('Erro ao desativar processo:', err)
+      if (err.response?.data?.error?.message) {
+        alert(`Erro: ${err.response.data.error.message}`)
+      } else {
         alert('Erro ao desativar processo')
       }
+    } finally {
+      setProcessoToDelete(null)
     }
   }
 
@@ -150,7 +164,6 @@ export function ProcessosPage() {
     }
   }
 
-  // Atalhos de teclado
   useKeyboardShortcuts([
     {
       key: 'n',
@@ -204,6 +217,17 @@ export function ProcessosPage() {
           onDelete={handleDelete}
         />
       </div>
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open)
+          if (!open) setProcessoToDelete(null)
+        }}
+        title="Confirmar exclusão"
+        description="Tem certeza que deseja desativar este processo?"
+        confirmLabel="Desativar"
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

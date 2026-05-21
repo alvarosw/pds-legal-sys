@@ -1,6 +1,8 @@
 from flask import jsonify, request
+from app.extensions import db
 from app.schemas.advogado import AdvogadoSchema, AdvogadoCreateSchema, AdvogadoUpdateSchema
 from app.repositories.advogado_repo import AdvogadoRepository
+from app.models.processo import Processo
 
 
 advogado_schema = AdvogadoSchema()
@@ -79,11 +81,27 @@ def update_advogado(id):
 
 
 def deactivate_advogado(id):
-    advogado = AdvogadoRepository.get_by_id(id)
-    if not advogado:
-        return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Advogado não encontrado.'}}), 404
-    advogado = AdvogadoRepository.deactivate(advogado)
-    return jsonify(advogado_schema.dump(advogado)), 200
+    try:
+        advogado = AdvogadoRepository.get_by_id(id)
+        if not advogado:
+            return jsonify({'error': {'code': 'NOT_FOUND', 'message': 'Advogado não encontrado.'}}), 404
+
+        # Verificar se há processos ativos vinculados
+        processos_ativos = Processo.query.filter_by(advogado_resp_id=id, ativo=True).all()
+        if processos_ativos:
+            return jsonify({
+                'error': {
+                    'code': 'CONFLICT',
+                    'message': f'Não é possível desativar: existem {len(processos_ativos)} processo(s) ativo(s) vinculado(s).'
+                }
+            }), 409
+
+        advogado.ativo = False
+        db.session.commit()
+        return jsonify(advogado_schema.dump(advogado)), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': {'code': 'INTERNAL_ERROR', 'message': f'Erro ao desativar advogado: {str(e)}'}}), 500
 
 
 def reactivate_advogado(id):
