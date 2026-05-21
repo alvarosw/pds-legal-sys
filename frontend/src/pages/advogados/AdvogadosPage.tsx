@@ -7,6 +7,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { getAdvogados, deactivateAdvogado } from '@/services/advogado.service'
 import { formatCPF, formatPhone, formatOAB } from '@/lib/formatters'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
+import { useToast } from '@/components/ui/toast'
 import type { Advogado } from '@/types'
 
 export function AdvogadosPage() {
@@ -20,6 +21,7 @@ export function AdvogadosPage() {
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+const { error } = useToast()
 
   const columns: Column<Advogado>[] = [
     {
@@ -119,9 +121,9 @@ export function AdvogadosPage() {
     } catch (err: any) {
       console.error('Erro ao desativar advogado:', err)
       if (err.response?.data?.error?.message) {
-        alert(`Erro: ${err.response.data.error.message}`)
+        error(`Erro: ${err.response.data.error.message}`)
       } else {
-        alert('Erro ao desativar advogado')
+        error('Erro ao desativar', 'Não foi possível desativar este advogado')
       }
     } finally {
       setAdvogadoToDelete(null)

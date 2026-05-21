@@ -7,6 +7,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { getProcessos, deactivateProcesso } from '@/services/processo.service'
 import { formatDate, formatCurrency } from '@/lib/formatters'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
+import { useToast } from '@/components/ui/toast'
 import type { Processo } from '@/types'
 
 const statusVariant = (status: string) => {
@@ -31,6 +32,7 @@ export function ProcessosPage() {
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+const { error } = useToast()
 
   const columns: Column<Processo>[] = [
     {
@@ -132,9 +134,9 @@ export function ProcessosPage() {
     } catch (err: any) {
       console.error('Erro ao desativar processo:', err)
       if (err.response?.data?.error?.message) {
-        alert(`Erro: ${err.response.data.error.message}`)
+        error('Erro ao desativar', err.response.data.error.message)
       } else {
-        alert('Erro ao desativar processo')
+        error('Erro ao desativar', 'Não foi possível desativar este processo')
       }
     } finally {
       setProcessoToDelete(null)

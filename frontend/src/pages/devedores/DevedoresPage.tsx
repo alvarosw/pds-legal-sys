@@ -7,6 +7,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { getDevedores, deactivateDevedor } from '@/services/devedor.service'
 import { formatCPFOrCNPJ, formatCurrency, formatDate } from '@/lib/formatters'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
+import { useToast } from '@/components/ui/toast'
 import type { Devedor } from '@/types'
 
 export function DevedoresPage() {
@@ -20,6 +21,7 @@ export function DevedoresPage() {
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+const { error } = useToast()
 
   const columns: Column<Devedor>[] = [
     {
@@ -127,9 +129,9 @@ export function DevedoresPage() {
     } catch (err: any) {
       console.error('Erro ao desativar devedor:', err)
       if (err.response?.data?.error?.message) {
-        alert(`Erro: ${err.response.data.error.message}`)
+        error(`Erro: ${err.response.data.error.message}`)
       } else {
-        alert('Erro ao desativar devedor')
+        error('Erro ao desativar', 'Não foi possível desativar este devedor')
       }
     } finally {
       setDevedorToDelete(null)

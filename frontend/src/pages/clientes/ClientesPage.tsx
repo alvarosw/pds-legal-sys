@@ -7,6 +7,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { getClientes, deactivateCliente } from '@/services/cliente.service'
 import { formatCPFOrCNPJ, formatPhone } from '@/lib/formatters'
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts'
+import { useToast } from '@/components/ui/toast'
 import type { Cliente } from '@/types'
 
 export function ClientesPage() {
@@ -20,6 +21,7 @@ export function ClientesPage() {
   const navigate = useNavigate()
   const tableRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+const { error } = useToast()
 
   const columns: Column<Cliente>[] = [
     {
@@ -112,9 +114,9 @@ export function ClientesPage() {
     } catch (err: any) {
       console.error('Erro ao desativar cliente:', err)
       if (err.response?.data?.error?.message) {
-        alert(`Erro: ${err.response.data.error.message}`)
+        error('Erro ao desativar', err.response.data.error.message)
       } else {
-        alert('Erro ao desativar cliente')
+        error('Erro ao desativar', 'Não foi possível desativar este cliente')
       }
     } finally {
       setClienteToDelete(null)
