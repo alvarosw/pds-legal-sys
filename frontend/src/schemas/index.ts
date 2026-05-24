@@ -47,7 +47,6 @@ export const processoSchema = z.object({
   cliente_id: z.string().min(1, 'Cliente é obrigatório'),
   data_abertura: z.string().min(1, 'Data de abertura é obrigatória'),
   vara_comarca: z.string().min(1, 'Vara/Comarca é obrigatória'),
-  devedor_id: z.string().optional(),
   status: z.enum(['Aberto', 'Em Andamento', 'Suspenso', 'Encerrado', 'Arquivado']),
   advogado_resp_id: z.string().optional(),
   valor_causa: z.coerce.number().positive('Valor da causa deve ser positivo').optional().or(z.literal(0)),

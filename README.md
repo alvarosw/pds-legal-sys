@@ -84,32 +84,72 @@ Aplicação disponível em http://localhost:5173
 
 > **Obs:** Se rodar frontend localmente, edite `frontend/src/services/api.ts` se precisar mudar a URL da API.
 
+## Autenticação
+
+O sistema utiliza autenticação via JWT (JSON Web Tokens). Todas as requisições para endpoints protegidos devem incluir o token no cabeçalho `Authorization: Bearer <token>`.
+
+### Credenciais de Desenvolvimento
+
+| Perfil       | Email             | Senha      | Permissões             |
+|--------------|-------------------|------------|------------------------|
+| Admin        | admin@email.com   | admin123   | Acesso completo + admin |
+| Teste        | tester@email.com  | tester123  | Acesso padrão           |
+
+> **Obs:** Os usuários são criados automaticamente ao rodar o script `create_admin.py` (veja backend/README.md).
+
+### Endpoints de Autenticação
+
+| Método | Endpoint      | Descrição                    |
+|--------|---------------|------------------------------|
+| POST   | `/auth/login` | Realizar login e obter token |
+
+### Exemplo de Login
+
+```bash
+curl -X POST http://localhost:5000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@pds.com.br", "senha": "admin123"}'
+```
+
+Resposta:
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "usuario": {
+    "id": "...",
+    "nome": "Administrador Principal",
+    "email": "admin@pds.com.br",
+    "is_admin": true
+  }
+}
+```
+
 ## Endpoints da API
 
 Base URL: `http://localhost:5000/api/v1`
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| GET | `/clientes` | Listar clientes |
-| POST | `/clientes` | Criar cliente |
-| GET | `/clientes/:id` | Detalhar cliente |
-| PUT | `/clientes/:id` | Atualizar cliente |
-| DELETE | `/clientes/:id` | Desativar cliente |
-| GET | `/advogados` | Listar advogados |
-| POST | `/advogados` | Criar advogado |
-| GET | `/advogados/:id` | Detalhar advogado |
-| PUT | `/advogados/:id` | Atualizar advogado |
-| DELETE | `/advogados/:id` | Desativar advogado |
-| GET | `/processos` | Listar processos |
-| POST | `/processos` | Criar processo |
-| GET | `/processos/:id` | Detalhar processo |
-| PUT | `/processos/:id` | Atualizar processo |
-| DELETE | `/processos/:id` | Encerrar processo |
-| GET | `/devedores` | Listar devedores |
-| POST | `/devedores` | Criar devedor |
-| GET | `/devedores/:id` | Detalhar devedor |
-| PUT | `/devedores/:id` | Atualizar devedor |
-| DELETE | `/devedores/:id` | Desativar devedor |
+| Método   | Endpoint            | Descrição                |
+|----------|---------------------|--------------------------|
+| GET      | `/clientes`         | Listar clientes          |
+| POST     | `/clientes`         | Criar cliente            |
+| GET      | `/clientes/:id`     | Detalhar cliente         |
+| PUT      | `/clientes/:id`     | Atualizar cliente        |
+| DELETE   | `/clientes/:id`     | Desativar cliente        |
+| GET      | `/advogados`        | Listar advogados         |
+| POST     | `/advogados`        | Criar advogado           |
+| GET      | `/advogados/:id`    | Detalhar advogado        |
+| PUT      | `/advogados/:id`    | Atualizar advogado       |
+| DELETE   | `/advogados/:id`    | Desativar advogado       |
+| GET      | `/processos`        | Listar processos         |
+| POST     | `/processos`        | Criar processo           |
+| GET      | `/processos/:id`    | Detalhar processo        |
+| PUT      | `/processos/:id`    | Atualizar processo       |
+| DELETE   | `/processos/:id`    | Encerrar processo        |
+| GET      | `/devedores`        | Listar devedores         |
+| POST     | `/devedores`        | Criar devedor            |
+| GET      | `/devedores/:id`    | Detalhar devedor         |
+| PUT      | `/devedores/:id`    | Atualizar devedor        |
+| DELETE   | `/devedores/:id`    | Desativar devedor        |
 
 ### Formato de resposta (listas)
 

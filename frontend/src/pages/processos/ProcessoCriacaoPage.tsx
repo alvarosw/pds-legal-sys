@@ -18,15 +18,13 @@ import { processoSchema, type ProcessoFormData } from '@/schemas'
 import { createProcesso, getProcessoErrorMessage } from '@/services/processo.service'
 import { getClientes } from '@/services/cliente.service'
 import { getAdvogados } from '@/services/advogado.service'
-import { getDevedores } from '@/services/devedor.service'
-import type { Cliente, Advogado, Devedor } from '@/types'
+import type { Cliente, Advogado } from '@/types'
 
 export function ProcessoCriacaoPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [advogados, setAdvogados] = useState<Advogado[]>([])
-  const [devedores, setDevedores] = useState<Devedor[]>([])
 
   const {
     register,
@@ -44,12 +42,10 @@ export function ProcessoCriacaoPage() {
 
   const watchClienteId = watch('cliente_id')
   const watchAdvogadoId = watch('advogado_resp_id')
-  const watchDevedorId = watch('devedor_id')
 
   useEffect(() => {
     getClientes({ page: 1, per_page: 100 }).then(r => setClientes(r.data)).catch(() => {})
     getAdvogados({ page: 1, per_page: 100 }).then(r => setAdvogados(r.data)).catch(() => {})
-    getDevedores({ page: 1, per_page: 100 }).then(r => setDevedores(r.data)).catch(() => {})
   }, [])
 
   const onSubmit = async (data: ProcessoFormData) => {
@@ -60,7 +56,6 @@ export function ProcessoCriacaoPage() {
         cliente_id: data.cliente_id,
         data_abertura: data.data_abertura,
         vara_comarca: data.vara_comarca,
-        devedor_id: data.devedor_id || undefined,
         status: data.status,
         advogado_resp_id: data.advogado_resp_id || undefined,
         valor_causa: data.valor_causa || undefined,
@@ -74,7 +69,6 @@ export function ProcessoCriacaoPage() {
 
   const clienteSelecionado = clientes.find(c => c.id === watchClienteId)
   const advogadoSelecionado = advogados.find(a => a.id === watchAdvogadoId)
-  const devedorSelecionado = devedores.find(d => d.id === watchDevedorId)
 
   return (
     <div className="px-6 py-4">
@@ -133,27 +127,6 @@ export function ProcessoCriacaoPage() {
                 )}
                 {clienteSelecionado && (
                   <p className="text-xs text-muted-foreground">Selecionado: {clienteSelecionado.nome_completo}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <LabelWithTooltip
-                  tooltip="Selecione o devedor relacionado a este processo. Campo opcional"
-                >
-                  Devedor vinculado
-                </LabelWithTooltip>
-                <Select onValueChange={(v) => setValue('devedor_id', v)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione um devedor" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {devedores.map(d => (
-                      <SelectItem key={d.id} value={d.id}>{d.nome_razao_social}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {devedorSelecionado && (
-                  <p className="text-xs text-muted-foreground">Selecionado: {devedorSelecionado.nome_razao_social}</p>
                 )}
               </div>
 

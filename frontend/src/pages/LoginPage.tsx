@@ -4,34 +4,32 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { login } from '@/services/auth.service'
+import { useAuthStore } from '@/stores/auth'
 
 export function LoginPage() {
   const navigate = useNavigate()
+  const { login: authLogin } = useAuthStore()
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [senha, setSenha] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setIsLoading(true)
 
-    // Simulação de autenticação com delay
-    setTimeout(() => {
-      // Autenticação mock - aceita qualquer email/senha não vazios
-      if (email.trim() && password.trim()) {
-        // Salvar estado de autenticação no session storage
-        sessionStorage.setItem('isAuthenticated', 'true')
-        sessionStorage.setItem('userEmail', email)
-
-        // Redirecionar para a página inicial (clientes)
-        navigate('/clientes')
-      } else {
-        setError('Por favor, preencha todos os campos.')
-      }
+    try {
+      const response = await login({ email, senha })
+      authLogin(response.token, response.usuario)
+      navigate('/clientes')
+    } catch (err) {
+      const mensagem = err instanceof Error ? err.message : 'Erro ao fazer login. Verifique suas credenciais.'
+      setError(mensagem)
+    } finally {
       setIsLoading(false)
-    }, 500)
+    }
   }
 
   return (
@@ -58,13 +56,13 @@ export function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="senha">Senha</Label>
               <Input
-                id="password"
+                id="senha"
                 type="password"
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
                 disabled={isLoading}
                 required
               />
@@ -82,9 +80,6 @@ export function LoginPage() {
               {isLoading ? 'Entrando...' : 'Entrar'}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            <p>Para testar: use qualquer email e senha não vazios</p>
-          </div>
         </CardContent>
       </Card>
     </div>

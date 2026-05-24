@@ -19,12 +19,14 @@ def create_app(config_class=Config):
 
     # Blueprints
     from .controllers.health_bp import health_bp
+    from .controllers.auth_bp import auth_bp
     from .controllers.cliente_bp import cliente_bp
     from .controllers.advogado_bp import advogado_bp
     from .controllers.devedor_bp import devedor_bp
     from .controllers.processo_bp import processo_bp
 
     app.register_blueprint(health_bp, url_prefix='/api/v1')
+    app.register_blueprint(auth_bp, url_prefix='/api/v1')
     app.register_blueprint(cliente_bp, url_prefix='/api/v1')
     app.register_blueprint(advogado_bp, url_prefix='/api/v1')
     app.register_blueprint(devedor_bp, url_prefix='/api/v1')

@@ -13,7 +13,6 @@ class ProcessoSchema(Schema):
         required=True,
         validate=validate.OneOf(['Aberto', 'Em Andamento', 'Suspenso', 'Encerrado', 'Arquivado'])
     )
-    devedor_id = fields.String(load_default=None)
     advogado_resp_id = fields.String(load_default=None)
     valor_causa = fields.Decimal(load_default=None)
     observacoes = fields.String(load_default=None)

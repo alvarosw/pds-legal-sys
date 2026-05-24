@@ -13,12 +13,19 @@ import { DevedorEdicaoPage } from '@/pages/devedores/DevedorEdicaoPage'
 import { ProcessosPage } from '@/pages/processos/ProcessosPage'
 import { ProcessoCriacaoPage } from '@/pages/processos/ProcessoCriacaoPage'
 import { ProcessoEdicaoPage } from '@/pages/processos/ProcessoEdicaoPage'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
 
 export function AppRouter() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route element={<AppLayout />}>
+      <Route
+        element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/" element={<Navigate to="/clientes" replace />} />
         <Route path="/clientes" element={<ClientesPage />} />
         <Route path="/clientes/novo" element={<ClienteCriacaoPage />} />
@@ -33,6 +40,7 @@ export function AppRouter() {
         <Route path="/processos/novo" element={<ProcessoCriacaoPage />} />
         <Route path="/processos/:id" element={<ProcessoEdicaoPage />} />
       </Route>
+      <Route path="*" element={<Navigate to="/clientes" replace />} />
     </Routes>
   )
 }

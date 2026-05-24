@@ -19,7 +19,8 @@ class Devedor(db.Model):
     criado_em = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    processo_relation = db.relationship('Processo', back_populates='devedor', lazy=True)
+    # Um devedor pertence a um processo (.ManyToOne)
+    processo = db.relationship('Processo', back_populates='devedores', lazy=True)
 
     def to_dict(self):
         return {
