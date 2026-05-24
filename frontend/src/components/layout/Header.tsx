@@ -20,20 +20,20 @@ const listHeaderShortcuts = [
 export const Header = forwardRef<HTMLDivElement, HeaderProps>(
   ({ onNew, onSearch, className, searchInputRef }, ref) => {
     return (
-      <header className={cn('flex w-full justify-between items-center px-6 py-3', className)} ref={ref}>
-        <div className="flex items-center gap-3">
-        {onNew && (
-          <button
-            onClick={onNew}
-            className="flex items-center gap-2 rounded-lg bg-white px-5 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
-            aria-label="Criar novo registro"
-          >
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Novo
-          </button>
-        )}
-        <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+      <header className={cn('flex w-full justify-between items-center px-4 sm:px-6 py-3 gap-3', className)} ref={ref}>
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+          {onNew && (
+            <button
+              onClick={onNew}
+              className="flex items-center gap-2 rounded-lg bg-white px-3 sm:px-5 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors whitespace-nowrap"
+              aria-label="Criar novo registro"
+            >
+              <Plus className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+              <span className="hidden sm:inline">Novo</span>
+            </button>
+          )}
+          <div className="relative w-full max-w-sm min-w-0 flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground flex-shrink-0" aria-hidden="true" />
             <input
               ref={searchInputRef}
               type="text"

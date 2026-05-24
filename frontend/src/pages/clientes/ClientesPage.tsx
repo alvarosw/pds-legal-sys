@@ -171,9 +171,9 @@ const { error } = useToast()
 
   if (loading && clientes.length === 0) {
     return (
-      <div className="px-6 py-4">
+      <div className="px-4 sm:px-6 py-4">
         <Header onNew={handleNew} onSearch={setSearch} searchInputRef={searchInputRef} />
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-6">
           <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
@@ -181,13 +181,13 @@ const { error } = useToast()
   }
 
   return (
-    <div className="px-6 py-4">
+    <div className="px-4 sm:px-6 py-4">
       <Header
         onNew={handleNew}
         onSearch={setSearch}
         searchInputRef={searchInputRef}
       />
-      <div className="px-6 pb-6">
+      <div className="px-4 sm:px-6 pb-6 overflow-x-auto">
         <DataTable
           ref={tableRef}
           columns={columns}

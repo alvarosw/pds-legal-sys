@@ -98,9 +98,9 @@ export function ProcessoEdicaoPage() {
 
   if (loading) {
     return (
-      <div className="px-6 py-4">
+      <div className="px-4 sm:px-6 py-4">
         <Header />
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-6">
           <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
@@ -111,15 +111,15 @@ export function ProcessoEdicaoPage() {
   const advogadoSelecionado = advogados.find(a => a.id === watchAdvogadoId)
 
   return (
-    <div className="px-6 py-4">
+    <div className="px-4 sm:px-6 py-4">
       <Header />
-      <div className="px-6 pb-6">
+      <div className="px-4 sm:px-6 pb-6">
         <Card>
           <CardHeader>
             <CardTitle>Editar Processo</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-full sm:max-w-xl">
               <div className="space-y-2">
                 <LabelWithTooltip
                   htmlFor="numero_processo"

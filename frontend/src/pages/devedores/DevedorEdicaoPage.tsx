@@ -95,9 +95,9 @@ export function DevedorEdicaoPage() {
 
   if (loading) {
     return (
-      <div className="px-6 py-4">
+      <div className="px-4 sm:px-6 py-4">
         <Header />
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-6">
           <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
@@ -105,15 +105,15 @@ export function DevedorEdicaoPage() {
   }
 
   return (
-    <div className="px-6 py-4">
+    <div className="px-4 sm:px-6 py-4">
       <Header />
-      <div className="px-6 pb-6">
+      <div className="px-4 sm:px-6 pb-6">
         <Card>
           <CardHeader>
             <CardTitle>Editar Devedor</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-full sm:max-w-xl">
               <div className="space-y-2">
                 <Label htmlFor="nome_razao_social">Nome/Razão Social *</Label>
                 <Input id="nome_razao_social" {...register('nome_razao_social')} />
