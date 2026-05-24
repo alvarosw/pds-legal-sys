@@ -11,7 +11,7 @@ const navItems = [
 
 export function Sidebar() {
   const navigate = useNavigate()
-  const userEmail = sessionStorage.getItem('userEmail') || 'Usuário'
+  const userEmail = sessionStorage.getItem('userEmail') || ''
 
   const handleLogout = () => {
     logout()

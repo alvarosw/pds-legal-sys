@@ -1,7 +1,7 @@
 import { Search, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { forwardRef } from 'react'
-import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help';
+import { KeyboardShortcutsHelp } from '../ui/keyboard-shortcuts-help'
 
 interface HeaderProps {
   onNew?: () => void

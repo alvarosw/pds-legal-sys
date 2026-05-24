@@ -9,19 +9,20 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
   const navigate = useNavigate()
-  const { isAuthenticated, isAdmin } = useAuthStore()
-  const isAuth = isAuthenticated()
+  const { token, isAdmin } = useAuthStore()
   const isUserAdmin = isAdmin()
 
   useEffect(() => {
-    if (!isAuth) {
+    // Só redireciona para /login se não existir token no localStorage
+    if (!token) {
       navigate('/login', { replace: true })
     } else if (requireAdmin && !isUserAdmin) {
       navigate('/clientes', { replace: true })
     }
-  }, [isAuth, isUserAdmin, requireAdmin, navigate])
+  }, [token, isUserAdmin, requireAdmin, navigate])
 
-  if (!isAuth) {
+  // Renderiza null apenas se não houver token (foi renderizado antes da verificação completar)
+  if (!token) {
     return null
   }
 

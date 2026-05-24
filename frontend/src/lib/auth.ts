@@ -1,23 +1,17 @@
-import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuthStore } from '@/stores/auth'
 
 export function useRequireAuth() {
   const navigate = useNavigate()
+  const token = useAuthStore((state) => state.token)
 
-  useEffect(() => {
-    const isAuthenticated = sessionStorage.getItem('isAuthenticated') === 'true'
+  if (!token) {
+    navigate('/login', { replace: true })
+  }
 
-    if (!isAuthenticated) {
-      navigate('/login')
-    }
-  }, [navigate])
-}
-
-export function isAuthenticated(): boolean {
-  return sessionStorage.getItem('isAuthenticated') === 'true'
+  return { token }
 }
 
 export function logout() {
-  sessionStorage.removeItem('isAuthenticated')
-  sessionStorage.removeItem('userEmail')
+  useAuthStore.getState().logout()
 }

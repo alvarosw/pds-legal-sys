@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { useAuthStore } from '../stores/auth'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
@@ -35,8 +36,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Token expirado ou invalido - faz logout
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth-storage')
-        window.location.href = '/login'
+        useAuthStore.getState().logout()
       }
     }
     return Promise.reject(error)
