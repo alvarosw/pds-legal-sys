@@ -11,6 +11,7 @@ class Processo(db.Model):
     tipo = db.Column(db.String(100), nullable=False)
     cliente_id = db.Column(db.String(36), db.ForeignKey('clientes.id'), nullable=False)
     data_abertura = db.Column(db.Date, nullable=False)
+    devedor_id = db.Column(db.String(36), db.ForeignKey('devedores.id'), nullable=True)
     vara_comarca = db.Column(db.String(150), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='Aberto')
     advogado_resp_id = db.Column(db.String(36), db.ForeignKey('advogados.id'))
@@ -20,7 +21,7 @@ class Processo(db.Model):
     criado_em = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    devedores = db.relationship('Devedor', backref='processo', lazy=True)
+    devedor = db.relationship('Devedor', back_populates='processo_relation', lazy=True)
 
     def to_dict(self):
         return {
@@ -31,6 +32,7 @@ class Processo(db.Model):
             'data_abertura': self.data_abertura.isoformat() if self.data_abertura else None,
             'vara_comarca': self.vara_comarca,
             'status': self.status,
+            'devedor_id': self.devedor_id,
             'advogado_resp_id': self.advogado_resp_id,
             'valor_causa': float(self.valor_causa) if self.valor_causa else None,
             'observacoes': self.observacoes,

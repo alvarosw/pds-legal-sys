@@ -198,7 +198,16 @@ def populate_devedores(processos, count=15):
 
     db.session.add_all(devedores)
     db.session.commit()
+
+    # Atualizar processos com devedor_id (70% dos processos têm devedor vinculado)
+    for processo in processos:
+        if random.random() > 0.3:
+            devedor_do_processo = random.choice(devedores)
+            processo.devedor_id = devedor_do_processo.id
+
+    db.session.commit()
     print(f"✓ {count} devedores criados com sucesso!")
+    print(f"✓ {sum(1 for p in processos if p.devedor_id)} processos vinculados a devedores!")
     return devedores
 
 

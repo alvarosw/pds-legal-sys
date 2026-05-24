@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -9,21 +9,39 @@ import { Input } from '@/components/ui/input'
 import { MaskedInput } from '@/components/ui/masked-input'
 import { Label } from '@/components/ui/label'
 import { LabelWithTooltip } from '@/components/ui/label-with-tooltip'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { devedorSchema, type DevedorFormData } from '@/schemas'
 import { createDevedor, getDevedorErrorMessage } from '@/services/devedor.service'
+import { getProcessos } from '@/services/processo.service'
+import type { Processo } from '@/types'
 
 export function DevedorCriacaoPage() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
+  const [processos, setProcessos] = useState<Processo[]>([])
 
   const {
     register,
     control,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<DevedorFormData>({
     resolver: zodResolver(devedorSchema),
   })
+
+  const watchProcessoId = watch('processo_id')
+
+  useEffect(() => {
+    getProcessos({ page: 1, per_page: 100 }).then(r => setProcessos(r.data)).catch(() => {})
+  }, [])
 
   const onSubmit = async (data: DevedorFormData) => {
     try {
@@ -146,6 +164,27 @@ export function DevedorCriacaoPage() {
                 <Input id="contato" {...register('contato')} />
                 {errors.contato && (
                   <p className="text-xs text-destructive">{errors.contato.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <LabelWithTooltip
+                  tooltip="Selecione o processo judicial relacionado a este devedor. Campo opcional"
+                >
+                  Processo vinculado
+                </LabelWithTooltip>
+                <Select onValueChange={(v) => setValue('processo_id', v)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um processo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {processos.map(p => (
+                      <SelectItem key={p.id} value={p.id}>{p.numero_processo}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {watchProcessoId && (
+                  <p className="text-xs text-muted-foreground">Selecionado: {processos.find(p => p.id === watchProcessoId)?.numero_processo}</p>
                 )}
               </div>
 

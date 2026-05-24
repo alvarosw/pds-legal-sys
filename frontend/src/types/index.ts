@@ -32,6 +32,7 @@ export interface Processo {
   data_abertura: string
   vara_comarca: string
   status: string
+  devedor_id?: string
   advogado_resp_id?: string
   valor_causa?: number
   observacoes?: string

@@ -13,11 +13,13 @@ class Devedor(db.Model):
     data_divida = db.Column(db.Date, nullable=False)
     origem_descricao = db.Column(db.Text, nullable=False)
     contato = db.Column(db.String(150))
-    processo_id = db.Column(db.String(36), db.ForeignKey('processos.id'))
+    processo_id = db.Column(db.String(36), db.ForeignKey('processos.id'), nullable=True)
     observacoes = db.Column(db.Text)
     ativo = db.Column(db.Boolean, default=True, nullable=False)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     atualizado_em = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    processo_relation = db.relationship('Processo', back_populates='devedor', lazy=True)
 
     def to_dict(self):
         return {
