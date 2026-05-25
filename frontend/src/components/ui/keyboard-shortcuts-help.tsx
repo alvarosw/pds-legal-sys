@@ -22,7 +22,7 @@ export function KeyboardShortcutsHelp({ shortcuts, ...rest }: KeyboardShortcutsH
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className={cn("gap-2", rest.className)} {...rest}>
+        <Button variant="ghost" size="sm" className={cn("gap-2 hidden lg:inline-flex", rest.className)} {...rest}>
           <Keyboard className="h-4 w-4" />
           Atalhos
         </Button>
