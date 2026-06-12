@@ -1,3 +1,4 @@
+import { AxiosError, isAxiosError } from 'axios';
 import { api } from './api'
 import type { Usuario } from '@/stores/auth'
 
@@ -12,8 +13,13 @@ interface LoginResponse {
 }
 
 export async function login({ email, senha }: LoginCredentials): Promise<LoginResponse> {
-  const response = await api.post<LoginResponse>('/auth/login', { email, senha })
-  return response.data
+  try {
+    const response = await api.post<LoginResponse>('/auth/login', { email, senha })
+    return response.data
+  } catch (err: any) {
+    console.log(err.response)
+    throw new Error(err.response?.data?.error?.message || 'Erro ao fazer login. Verifique suas credenciais.')
+  }
 }
 
 export async function getUsuarios(params?: { page?: number; per_page?: number; q?: string }) {
