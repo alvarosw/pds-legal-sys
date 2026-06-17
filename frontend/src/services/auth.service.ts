@@ -1,4 +1,3 @@
-import { AxiosError, isAxiosError } from 'axios';
 import { api } from './api'
 import type { Usuario } from '@/stores/auth'
 
